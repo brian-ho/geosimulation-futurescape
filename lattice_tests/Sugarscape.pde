@@ -53,7 +53,7 @@ class Sugarscape extends Lattice  // when a class "extends" another class
          // it removes all of the food at that location. 
         
           x = constrain(x, 0, w ); // make sure the x,y value
-          y = constrain(y, 0, h ); // isn't bigger or smaller than the lattaice
+          y = constrain(y, 0, h ); // isn't bigger or smaller than the lattice
                                    
                                    
           float harvestAmount = food[x][y]; // grab the amount of food at x,y
