@@ -11,12 +11,11 @@ class cow
    float foodAmount = 5;       // starting amount of food (OUT OF?)
    float grazingRate;          // rate of consumption
    float ruminateRate;         // rate of digestion or metabolic rate
-   float speed = 0.1;
+   float speed = 0.5;
    int size = 1;               // when it was but a wee calf ...
    int vision;                 // vision range or kernel size
    int w, h;                   // Firescape width and height
    int status;
-   String thought;
    boolean alive = true;       // zombie cows?
    Kernel k;                   // kernel for the cow
  
@@ -93,7 +92,6 @@ class cow
        // (4) poop : dows what it says on the tin
         
         if (loc == dest) {
-          println ("YES");
           graze(scape);
         }
         
@@ -109,29 +107,33 @@ class cow
     {
         // if alive, draw to the screen
         // the 50x50 Firescape is scaled to fit the screen
-        
+      String thought = "moo ...";
         if( alive ) 
         {
             strokeWeight( 1 );
             stroke( 255, 255, 255 );
+            
+            println();
+            println(frameCount);
 
             if ( status == R ){ 
-              thought = "THIKING";
+              println( "THINKING");
               fill ( 255, 255, 255 );
             }
             else if ( status == G ){  
-              thought = "EATING";
+              println ("EATING");
               fill (0, 0, 0 );
             }
             else if ( status == M ){
-              thought = "MOVING";
+              println("MOVING");
               fill (255, 0, 0 );
             }
             float xCow = map( loc.x, 0, w, 0, width );
             float yCow = map( loc.y, 0, h, 0, height );
             ellipse( xCow, yCow, 8, 8 );
             fill( 255, 0, 0 );
-            text( thought, xCow, yCow);
+            text( thought + " food: " + nf(foodAmount, 1, 2), xCow + 5, yCow);
+            text( "V:" + vision + " G:" + grazingRate + " R:" + ruminateRate, xCow +5, yCow+15);
             
             noStroke();
             fill( 255, 0, 0 );
@@ -142,6 +144,9 @@ class cow
             strokeWeight( 1 );
             stroke( 255, 0 , 0 );
             line( xCow, yCow, xDest, yDest );
+            
+            println( "LOC: " + loc.x + " (" + xCow + "), " + loc.y + " (" + yCow + ")" );
+            println( "DEST: " + dest.x + ", " + dest.y);
         }  
     };
     
@@ -157,17 +162,28 @@ class cow
            
         PVector maxNeighbor = k.getMax( scape, loc );
         
-        if( maxNeighbor.z > 0 )
+        /*if( maxNeighbor.z > 0 )
         {
           dest.x = maxNeighbor.x;
           dest.y = maxNeighbor.y;
         }
         else
-        {
-            dest.x = wrap( loc.x + random(-5,5), w );
-            dest.y = wrap( loc.y + random(-5,5), h );
-        }
+        {*/
+          dest.x = wrap( loc.x + random(-vision,vision), w );
+          dest.y = wrap( loc.y + random(-vision,vision), h );
+          println("DEST:", dest.x, dest.y);
+        //}
         
+        // subtract the food amount needed to stay alive for one time step
+        // from the total amount this agent is holding.
+        
+        foodAmount -= ruminateRate;
+        
+        // if the amount needed to eat is more than the agent has left
+        // the agent "dies"
+        
+        //if( foodAmount <= 0 ) 
+        //    alive = false; 
         status = R;
     };
     
@@ -177,47 +193,34 @@ class cow
         // simply extract the food from the sugarScape at currently location
         // and add it to the food the agent currently has stored
         dest = loc;
-        foodAmount += scape.harvest( (int)loc.x, (int)loc.y );
-        status = G;
+        float temp = scape.harvest( (int)loc.x, (int)loc.y, grazingRate );
+        if (temp == 0){
+          ruminate (scape);
+        }
+        else if (temp != 0){
+          foodAmount += temp;
+          status = G;
+        }
+
     };
 
  ///////////////////////////////////////////////////////////////
     void moove()// Firescape scape )
-    {
-        // subtract the food amount needed to stay alive for one time step
-        // from the total amount this agent is holding.
-        
-        
-        //foodAmount -= ruminateRate;
-        
-        // if the amount needed to eat is more than the agent has left
-        // the agent "dies"
-        
-        //if( foodAmount <= 0 ) 
-        //    alive = false; 
+    { 
+ 
         PVector velocity = PVector.sub(dest, loc);
         if ( velocity.mag() > speed ){
           velocity.setMag(speed);}
-        loc.add(velocity);
-        
+        //loc.add(velocity);
+        loc.x = wrap( loc.x + velocity.x, w );
+        loc.y = wrap( loc.y + velocity.y, h );
         status = M;
         if ( velocity.mag() == 0 ){ dest = loc; }
     };
     
   ///////////////////////////////////////////////////////////////
     void poop( Firescape scape )
-    {
-        // subtract the food amount needed to stay alive for one time step
-        // from the total amount this agent is holding.
-        
-        
-        //foodAmount -= ruminateRate;
-        
-        // if the amount needed to eat is more than the agent has left
-        // the agent "dies"
-        
-        //if( foodAmount <= 0 ) 
-        //    alive = false;    
+    {  
     };
     
  ///////////////////////////////////////////////////////////////
@@ -227,8 +230,8 @@ class cow
             // us an error when accessing a cell from the Firescape
             // wrap ensures the agent is on a torus surface
       
-            if( index < 0 )           index = iSize + index; //N.B. index is negative here
-            else if( index >= iSize ) index = index - iSize;
+            if( index < 0 )           index = abs(index); //N.B. index is negative here
+            else if( index >= iSize ) index = iSize - (index - iSize);
             
             return index;
     };

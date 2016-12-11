@@ -1,11 +1,11 @@
-class Firescape extends Lattice  // when a class "extends" another class
+class Firescape extends Lattice   // when a class "extends" another class
 {                                 // it has all of the functions and variables that
                                   // the "super" class has, even if they remain hidden
                                   // this is how we use Lattice to create a Firescape
                                   // we want all of the lattice functionality but we 
                                   // what it to do a few other things as well
 
-      float maxCapacity = 4;      // the maximum amount of food
+      float maxCapacity = 5;      // the maximum amount of food
                                   // a cell in the landscape can hold
       
       float capacity[][];         // the capacity to hold food at each x,y cell 
@@ -54,10 +54,17 @@ class Firescape extends Lattice  // when a class "extends" another class
         
           x = constrain(x, 0, w ); // make sure the x,y value
           y = constrain(y, 0, h ); // isn't bigger or smaller than the lattaice
+          
+          float harvestAmount;
                                    
-                                   
-          float harvestAmount = food[x][y]; // grab the amount of food at x,y
-          food[x][y] = 0;                   // set the new amount of food there to zero
+          if (food[x][y] <= grazingRate) {                         
+            harvestAmount = food[x][y]; // grab the amount of food at x,y
+            food[x][y] = 0;                   // set the new amount of food there to zero
+          }
+          else{
+            harvestAmount = grazingRate;
+            food[x][y] -= grazingRate;
+          }
                                             
                    
           if( pollute == true )            // if we are polluting
@@ -173,6 +180,20 @@ class Firescape extends Lattice  // when a class "extends" another class
             
       }
 
-
+/////////////////////////////////////////////////////////////// 
+      void drawScape ()
+      {
+        for( int x = 0; x < w; x++){
+        for( int y = 0; y < h; y++){
+             
+            int val = round( map( food[x][y], 0, maxCapacity, 0, 255) );
+            int drawX = round( map( x, 0, w, 0, width ) );
+            int drawY = round( map( y, 0, h, 0, height ) );
+            int dimn = round( width/w );
+            fill( 255-val, val, 255-val );
+            rect( drawX, drawY, dimn, dimn);
+          }
+        }
+      }
 
 };

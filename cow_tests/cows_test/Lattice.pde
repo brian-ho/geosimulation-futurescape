@@ -321,7 +321,6 @@ public class Lattice
         for( int j = 0; j < lattice[0].length; j++){
     
               int val = round( map( lattice[i][j], minny, maxxy, 0, 255) );
-              //img.set(i,j, color(val, 255-val, val, (255-val)/2) );
               img.set(i,j, color(val, val, val) );
         }}
         

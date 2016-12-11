@@ -7,10 +7,10 @@ int latH = 25;
 int latW = 25; 
 
 ArrayList< cow > herd;  // an ArrayList that holds instances of our sugarscape agent
-int popSize = 10;                   // and the herd size we use to initialize them
+int popSize = 1;                   // and the herd size we use to initialize them
 
 boolean seasons    = false;          // does the food grow in seasons
-float growthRate1  = 0.25;           // season 1 growth rate
+float growthRate1  = 0.01;           // season 1 growth rate
 float growthRate2  = 0.01;           // season 2 growth rate
 float polluteRate  = 0.1;            // pollution rate
 float foodCollapse = 2;              // pollution threshold that collapses food
@@ -25,7 +25,7 @@ float southMound  = growthRate2;
 void setup()
 {
     size(500,500);
-    frameRate(12);
+    frameRate(1);
     
     scape = new Firescape( 50, 50 );    // create a 50 x 50 Sugarscape
     scape.addFoodPoint( 15, 40, 6, 20 );  // add a food mound at x,y location [15,40] 
@@ -36,6 +36,8 @@ void setup()
     scape.alpha       = polluteRate;
     scape.beta        = foodCollapse;
     scape.recoverRate = recoverRate;
+    
+    scape.growFood();
 
     // initialize the ArrayList that holds our herd
     herd = new ArrayList< cow >();
@@ -43,10 +45,11 @@ void setup()
     // fill the ArrayList with popSize number of agents
     for( int n = 0; n < popSize; n++ )
     { 
-        int   vision = round( random( 1, 2 ) );    // vision is randomly distributed between 1 and 6
+        int   vision = round( random( 1, 3 ) );    // vision is randomly distributed between 1 and 6
         float metab  = round( random( 1, 4 ) );  // metabolic rate is randomly distributed between 1 and 4
+        float metab2  = round( random( 1, 4 ) );  // metabolic rate is randomly distributed between 1 and 4
       
-        herd.add( new cow( latW, latH, metab, metab, vision ) );
+        herd.add( new cow( latW, latH, metab, metab2, vision ) );
     }
     
 };
@@ -64,13 +67,13 @@ void draw()
     // in a random order
     Collections.shuffle(herd);
     
-    if( seasons == true  ) scape.growFood();
-    if( seasons == false ) scape.growFood( growthRate1 );
+    //if( seasons == true  ) scape.growFood();
+    //if( seasons == false ) scape.growFood( growthRate1 );
     
     
     // draw the food source on the screen
-    image( scape.updatePImage(), 0, 0, width, height );  
-    
+    //image( scape.updatePImage(), 0, 0, width, height );  
+    scape.drawScape();
     
     // this is an iterator. it allows us to loop through
     // all of the agents in herd without knowing how
