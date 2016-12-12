@@ -33,17 +33,17 @@ class cow
           // set the neighborhood distance to "vision" this is how far it can see
           // in terms of locating food resources in its immediate neighborhood
           k = new Kernel();
-          k.setNeighborhoodDistance( vision );
+          k.setNeighborhoodDistance(vision *  (int)(w/width));
           
           // assign it a random x,y location on the Firescape
-          int randomXLoc = (int) random( 0, w-1 );
-          int randomYLoc = (int) random( 0, h-1 );
+          int randomXLoc = (int) random( 0, width );
+          int randomYLoc = (int) random( 0, height );
         
           loc = new PVector( randomXLoc, randomYLoc );
           
           // find a destination
           dest = new PVector();
-          ruminate ();
+          ruminate ( scape );
       }
       
      ///////////////////////////////////////////////////////////////
@@ -67,12 +67,12 @@ class cow
           
           // find a destination
           dest = new PVector();
-          ruminate();
+          ruminate( scape );
       };
           
  ///////////////////////////////////////////////////////////////
  // function to run multiple object behaviors
-    void update()// Firescape scape )
+    void update( Firescape scape )
     {
        // at a given frame, a cow is doing one (or more) of the follwing:
        // (1) ruminate : cow pondering logic
@@ -90,13 +90,13 @@ class cow
         switch(status)
         {
           case 'G': 
-            graze();
+            graze( scape );
             break;
           case 'M': 
             moove();
             break;
           case 'R':
-            ruminate();
+            ruminate( scape );
             break;
           case 'P':
             poop();
@@ -111,14 +111,17 @@ class cow
       String thought = "moo...";
         if( alive ) 
         {
+            // mark the destination with a red circle
             noStroke();
             fill( 255, 0, 0 );
             ellipse( dest.x, dest.y, 4, 4 );
             
+            // draw a line from cow to destination
             strokeWeight( 1 );
             stroke( 255, 0 , 0 );
             line( loc.x, loc.y, dest.x, dest.y );
             
+            // draw cow, with fill depending on status
             stroke( 255, 255, 255 );
             
             switch(status)
@@ -139,49 +142,59 @@ class cow
             
             ellipse( loc.x, loc.y, 8, 8 );
             fill( 255, 0, 0 );
+            
+            // create cow text
             text( thought, loc.x + 10, loc.y);
-            //text( "V:" + vision + " G:" + grazingRate + " R:" + ruminateRate, loc.x + 10, loc.y + 15);
             text("food: " + nf(stomach, 1, 2),loc.x + 10, loc.y + 15);
+            text( "V:" + vision + " G:" + grazingRate + " R:" + ruminateRate, loc.x + 10, loc.y + 30);
             //text( status + " " + dest.x + ", " + dest.y, loc.x + 10, loc.y + 30);
         }  
     };
     
    ///////////////////////////////////////////////////////////////
-    void ruminate()// Firescape scape )
+    void ruminate( Firescape scape )
     {
        // using the Kernel's getMax() function 
        // find the closest cell with the maximum amount of food
        // use that cell's x, y location and move there. 
        // if there is no cell within the kernel that has food
        // move randomly from current location
-      
-           
-        //PVector maxNeighbor = k.getMax( scape, loc );
         
-        /*if( maxNeighbor.z > 0 )
+        int xScape = floor( map( loc.x, 0, width, 0, w ) );
+        int yScape = floor( map( loc.y, 0, height, 0, h ) );
+        
+        println ("SCAPE POS:", xScape, yScape);
+        
+        PVector locScape = new PVector (xScape, yScape);
+        
+        PVector maxNeighbor = k.getMax( scape, locScape );
+        
+        if( maxNeighbor.z > 0 )
         {
-          dest.x = maxNeighbor.x;
-          dest.y = maxNeighbor.y;
+          dest.x = map(maxNeighbor.x, 0, w, 0, width);
+          dest.y = map(maxNeighbor.y, 0, h, 0, height);
+          
+          println ( "NEW DEST:", dest.x, dest.y);
+          status = 'M';
         }
         else
-        {*/
+        {
           PVector delta = new PVector();
           delta.x = (int)random (-vision, vision);
           delta.y = (int)random (-vision, vision);
-
-          dest.x = wrap( loc.x + delta.x, width);
-          dest.y = wrap( loc.y + delta.y, width);
           
           if ( delta.x == 0 && delta.y == 0 )
           {
             status = 'R';
           }
           else if ( delta.x != 0 || delta.y != 0 )
-          {
+          {         
+            dest.x = wrap( loc.x + delta.x, width);
+            dest.y = wrap( loc.y + delta.y, width);
+            
             status = 'M';
-            println ("NEW DESTINATION", "D:", dest.x, dest.y, "L:", loc.x, loc.y);
           }
-        //}
+        }
         
         // subtract the food amount needed to stay alive for one time step
         // from the total amount this agent is holding.
@@ -196,19 +209,21 @@ class cow
     };
     
  ///////////////////////////////////////////////////////////////
-    void graze()// Firescape scape )
+    void graze( Firescape scape )
     {   
         // simply extract the food from the fireScape at current location
         // and add it to the food the agent currently has stored
-        //float temp = scape.harvest( (int)loc.x, (int)loc.y, grazingRate );
-        //if (temp == 0){
-        // (scape);
-        //}
-        //else if (temp != 0){
-        //  foodAmount += temp;
-        status = 'G';
-        ruminate();
-        //}
+        float mouthful = scape.harvest( (int)loc.x, (int)loc.y, grazingRate );
+        
+        if (mouthful < grazingRate)
+        {
+         status = 'R';
+        }
+        else if (mouthful == grazingRate)
+        {
+          stomach += mouthful;
+          status = 'G';
+        }
     };
 
  ///////////////////////////////////////////////////////////////
@@ -222,13 +237,14 @@ class cow
             
           loc.x = wrap( loc.x + velocity.x, width );
           loc.y = wrap( loc.y + velocity.y, height );
+          
           status = 'M';
         }
         else if ( velocity.mag() <= speed )
         {
           loc.x = dest.x;
           loc.y = dest.y;
-          println ("ARRIVED", "D:", dest.x, dest.y, "L:", loc.x, loc.y);
+          //println ("ARRIVED", "D:", dest.x, dest.y, "L:", loc.x, loc.y);
           status = 'G';
         }
     };
