@@ -1,4 +1,4 @@
-class cow
+class Cow
 {
    // our agent class
    // a cow goes moo
@@ -21,7 +21,7 @@ class cow
  
    ///////////////////////////////////////////////////////////////
    // constructor
-       cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision )
+       Cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision )
       {
           w = _w;  //  width of Firescape
           h = _h;  // height of Firescape
@@ -48,7 +48,7 @@ class cow
       
      ///////////////////////////////////////////////////////////////
      // alternate constructor with location
-      cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision, int xLoc, int yLoc )
+      Cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision, int xLoc, int yLoc )
       {
           w = _w;  //  width of Firescape
           h = _h;  // height of Firescape
@@ -72,7 +72,7 @@ class cow
           
  ///////////////////////////////////////////////////////////////
  // function to run multiple object behaviors
-    void update( Firescape scape )
+    void update( Firescape scape, ArrayList<Cow> herd )
     {
        // at a given frame, a cow is doing one (or more) of the follwing:
        // (1) ruminate : cow pondering logic
@@ -93,7 +93,7 @@ class cow
             graze( scape );
             break;
           case 'M': 
-            moove();
+            moove( herd );
             break;
           case 'R':
             ruminate( scape );
@@ -102,6 +102,10 @@ class cow
             poop();
             break;
         }
+        
+        stomach -= ruminateRate;
+        cowMass += ruminateRate;
+        if( stomach <= 0 ) alive = false; 
     };
         
  ///////////////////////////////////////////////////////////////
@@ -140,13 +144,13 @@ class cow
                 break;
             }
             
-            ellipse( loc.x, loc.y, 8, 8 );
+            ellipse( loc.x, loc.y, cowMass, cowMass );
             fill( 255, 0, 0 );
             
             // create cow text
             text( thought, loc.x + 10, loc.y);
-            text("food: " + nf(stomach, 1, 2),loc.x + 10, loc.y + 15);
-            text( "V:" + vision + " G:" + grazingRate + " R:" + ruminateRate, loc.x + 10, loc.y + 30);
+            text("F: " + nf(stomach, 1, 2) + " M:" + nf(cowMass, 1, 2),loc.x + 10, loc.y + 15);
+            text( "V:" + vision + " G:" + grazingRate + " R:" + nf(ruminateRate, 1, 2), loc.x + 10, loc.y + 30);
             //text( status + " " + dest.x + ", " + dest.y, loc.x + 10, loc.y + 30);
         }  
     };
@@ -160,15 +164,14 @@ class cow
        // if there is no cell within the kernel that has food
        // move randomly from current location
         
+        // convert cow position to Firescape grid
         int xScape = floor( map( loc.x, 0, width, 0, w ) );
         int yScape = floor( map( loc.y, 0, height, 0, h ) );
-        
-        println ("SCAPE POS:", xScape, yScape);
-        
         PVector locScape = new PVector (xScape, yScape);
         
         PVector maxNeighbor = k.getMax( scape, locScape );
         
+        // grass is always greener ...
         if( maxNeighbor.z > 0 )
         {
           dest.x = map(maxNeighbor.x, 0, w, 0, width);
@@ -177,6 +180,8 @@ class cow
           println ( "NEW DEST:", dest.x, dest.y);
           status = 'M';
         }
+        
+        // wanderin' about ...
         else
         {
           PVector delta = new PVector();
@@ -199,13 +204,12 @@ class cow
         // subtract the food amount needed to stay alive for one time step
         // from the total amount this agent is holding.
         
-        //foodAmount -= ruminateRate;
+        //
         
         // if the amount needed to eat is more than the agent has left
         // the agent "dies"
         
-        //if( foodAmount <= 0 ) 
-        //    alive = false; 
+
     };
     
  ///////////////////////////////////////////////////////////////
@@ -227,10 +231,12 @@ class cow
     };
 
  ///////////////////////////////////////////////////////////////
-    void moove()// Firescape scape )
+    void moove( ArrayList<Cow> herd )// Firescape scape )
     { 
         PVector velocity = PVector.sub(dest, loc);
         float mag = velocity.mag();
+        velocity.add(separate(herd).setMag(50));
+        
         if ( velocity.mag() > speed )
         {
           velocity.setMag(speed);
@@ -244,7 +250,6 @@ class cow
         {
           loc.x = dest.x;
           loc.y = dest.y;
-          //println ("ARRIVED", "D:", dest.x, dest.y, "L:", loc.x, loc.y);
           status = 'G';
         }
     };
@@ -255,6 +260,46 @@ class cow
     };
     
  ///////////////////////////////////////////////////////////////
+    // Keep your distance!
+    // Method checks for nearby cows and adjusts destination
+    PVector separate (ArrayList<Cow> herd) {
+      float desiredseparation = 8;
+      PVector steer = new PVector(0,0);
+      int count = 0;
+      // For every boid in the system, check if it's too close
+      for (Cow other : herd) {
+        if (cowMass < other.cowMass){
+          float d = PVector.dist(loc,other.loc);
+          // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+          if ((d > 0) && (d < desiredseparation)) {
+            // Calculate vector pointing away from neighbor
+            PVector diff = PVector.sub(loc,other.loc);
+            diff.normalize();
+            diff.div(d);        // Weight by distance
+            steer.add(diff);
+            count++;            // Keep track of how many
+          }
+        }
+      }
+      // Average -- divide by how many
+      if (count > 0) {
+        steer.div((float)count);
+      }
+  
+      // As long as the vector is greater than 0
+      if (steer.mag() > 0) {
+        // Implement Reynolds: Steering = Desired - Velocity
+        steer.normalize();
+        //steer.mult(speed);
+        //steer.sub(velocity);
+        //steer.limit(maxforce);
+      }
+      return steer;
+    }
+ 
+ 
+ 
+  ///////////////////////////////////////////////////////////////
     float wrap( float index, int iSize)
     {
             // just make sure the agent location doesn't give

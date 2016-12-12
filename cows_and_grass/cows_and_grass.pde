@@ -2,11 +2,11 @@ import java.util.Collections;
 // main sketch
 
 Firescape scape;
+Herd herd;
 
 int wScape = 50;
 int hScape = 50;
 
-ArrayList< cow > herd;  // an ArrayList that holds instances of our sugarscape agent
 int popSize = 20;        // and the herd size we use to initialize them
 
 boolean seasons    = false;          // does the food grow in seasons
@@ -37,49 +37,32 @@ void setup()
     
     scape.growFood();
   
-    herd = new ArrayList< cow >();
+    herd = new Herd();
     
     // fill the ArrayList with popSize number of agents
     for( int n = 0; n < popSize; n++ )
     { 
         int   vision = round( random( 20, 30 ) );    // vision is randomly distributed between 1 and 6
-        float metab  = round( random( 1, 4 ) );  // metabolic rate is randomly distributed between 1 and 4
-        float metab2  = round( random( 1, 4 ) );  // metabolic rate is randomly distributed between 1 and 4
-      
-        herd.add( new cow( wScape, hScape, metab, metab2, vision ) );
+        float graze  = round( random( 1, 4 ) );  // metabolic rate is randomly distributed between 1 and 4
+        float ruminate  = random( 0.01, 0.05 );  // metabolic rate is randomly distributed between 1 and 4
+        
+        Cow c = new Cow( wScape, hScape, graze, ruminate, vision );
+        herd.addCow( c );
     }
 };
 
 
 void draw()
 {
-  println();
+  println("-----------------------");
   println(frameCount);
   
   background(0);
   noStroke();
   
+  // run and draw the landscape on the screen 
   scape.growFood();
   scape.drawScape();
   
-  
-  // reorder the herd on each time step so they are updated
-  // in a random order
-  Collections.shuffle(herd);
-  
-  // draw the landscape on the screen 
-  //scape.drawScape();
-  
-  // for every ScapeAgent in herd: assign to temporary
-  // instance "p." check if p is alive, if so, update it and draw it
-  // then on to the next one
-  
-  for( cow c : herd )
-  {
-      if( c.alive) 
-      {
-        c.update(scape);
-        c.drawMyself();
-      }
-  }    
+  herd.run();
 }
