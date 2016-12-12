@@ -12,7 +12,8 @@ class Cow
    float ruminateRate;         // rate of digestion or metabolic rate
    float stomach = 5;       // starting amount of food
    float speed = 0.5;
-   float cowMass = 1;             // when it was but a wee calf ...
+   float mass = 1;             // when it was but a wee calf ...
+   float displayScale;
    int vision;                 // vision range or kernel size
    int w, h;                   // Firescape width and height
    char status;
@@ -25,6 +26,7 @@ class Cow
       {
           w = _w;  //  width of Firescape
           h = _h;  // height of Firescape
+          displayScale = width/w;
           grazingRate  = _grazingRate;        // metabolic rate
           ruminateRate = _ruminateRate;
           vision       = _vision;             // distance of vision (kernel size)
@@ -33,7 +35,7 @@ class Cow
           // set the neighborhood distance to "vision" this is how far it can see
           // in terms of locating food resources in its immediate neighborhood
           k = new Kernel();
-          k.setNeighborhoodDistance(vision *  (int)(w/width));
+          k.setNeighborhoodDistance(round(vision / displayScale));
           
           // assign it a random x,y location on the Firescape
           int randomXLoc = (int) random( 0, width );
@@ -43,7 +45,7 @@ class Cow
           
           // find a destination
           dest = new PVector();
-          ruminate ( scape );
+          status = 'R';
       }
       
      ///////////////////////////////////////////////////////////////
@@ -52,6 +54,7 @@ class Cow
       {
           w = _w;  //  width of Firescape
           h = _h;  // height of Firescape
+          displayScale = width/w;
           grazingRate  = _grazingRate;        // metabolic rate
           ruminateRate = _ruminateRate;
           vision       = _vision;             // distance of vision (kernel size)
@@ -60,14 +63,14 @@ class Cow
           // set the neighborhood distance to "vision" this is how far it can see
           // in terms of locating food resources in its immediate neighborhood
           k = new Kernel();
-          k.setNeighborhoodDistance( vision );
-  
+          k.setNeighborhoodDistance(round(vision / displayScale));
+          
           // x,y location assigned explicitly with input parameters above, xLoc, yLoc
           loc = new PVector( xLoc, yLoc );
           
           // find a destination
           dest = new PVector();
-          ruminate( scape );
+          status = 'R';
       };
           
  ///////////////////////////////////////////////////////////////
@@ -96,15 +99,21 @@ class Cow
             moove( herd );
             break;
           case 'R':
-            ruminate( scape );
+            ruminate( scape, herd );
             break;
           case 'P':
             poop();
             break;
         }
-        
+                
+        // subtract the food amount needed to stay alive for one time step
+        // from the total amount this agent is holding.
+        // convert this amount to mass
         stomach -= ruminateRate;
-        cowMass += ruminateRate;
+        mass += ruminateRate;
+                
+        // if the amount needed to eat is more than the agent has left
+        // the agent "dies"
         if( stomach <= 0 ) alive = false; 
     };
         
@@ -144,50 +153,57 @@ class Cow
                 break;
             }
             
-            ellipse( loc.x, loc.y, cowMass, cowMass );
+            ellipse( loc.x, loc.y, 6, 6 );
             fill( 255, 0, 0 );
             
             // create cow text
             text( thought, loc.x + 10, loc.y);
-            text("F: " + nf(stomach, 1, 2) + " M:" + nf(cowMass, 1, 2),loc.x + 10, loc.y + 15);
-            text( "V:" + vision + " G:" + grazingRate + " R:" + nf(ruminateRate, 1, 2), loc.x + 10, loc.y + 30);
+            //text("F: " + nf(stomach, 1, 2) + " M:" + nf(mass, 1, 2),loc.x + 10, loc.y + 15);
+            //text( "V:" + vision + " G:" + grazingRate + " R:" + nf(ruminateRate, 1, 2), loc.x + 10, loc.y + 30);
             //text( status + " " + dest.x + ", " + dest.y, loc.x + 10, loc.y + 30);
         }  
     };
     
    ///////////////////////////////////////////////////////////////
-    void ruminate( Firescape scape )
-    {
+    void ruminate( Firescape scape, ArrayList<Cow> herd )
+    {        
+       // convert cow position to Firescape grid
+       int xScape = floor( map( loc.x, 0, width, 0, w ) );
+       int yScape = floor( map( loc.y, 0, height, 0, h ) );
+        
        // using the Kernel's getMax() function 
        // find the closest cell with the maximum amount of food
        // use that cell's x, y location and move there. 
        // if there is no cell within the kernel that has food
        // move randomly from current location
-        
-        // convert cow position to Firescape grid
-        int xScape = floor( map( loc.x, 0, width, 0, w ) );
-        int yScape = floor( map( loc.y, 0, height, 0, h ) );
         PVector locScape = new PVector (xScape, yScape);
-        
         PVector maxNeighbor = k.getMax( scape, locScape );
         
-        // grass is always greener ...
-        if( maxNeighbor.z > 0 )
+        // grass is always greener ... to a point
+        if( maxNeighbor.z > 1.0 )
         {
-          dest.x = map(maxNeighbor.x, 0, w, 0, width);
-          dest.y = map(maxNeighbor.y, 0, h, 0, height);
+          dest.x = map(maxNeighbor.x, 0, w, 0, width) + displayScale/2;
+          dest.y = map(maxNeighbor.y, 0, h, 0, height) + displayScale/2;
           
           println ( "NEW DEST:", dest.x, dest.y);
           status = 'M';
+        }
+        // cows be patient
+        else if( maxNeighbor.z > 0 )
+        {
+          dest = loc;
+          status = 'R';
         }
         
         // wanderin' about ...
         else
         {
+          // pick new destination within visible range
           PVector delta = new PVector();
           delta.x = (int)random (-vision, vision);
           delta.y = (int)random (-vision, vision);
           
+          // new destination cannot be same as current location
           if ( delta.x == 0 && delta.y == 0 )
           {
             status = 'R';
@@ -200,14 +216,8 @@ class Cow
             status = 'M';
           }
         }
-        
-        // subtract the food amount needed to stay alive for one time step
-        // from the total amount this agent is holding.
-        
         //
-        
-        // if the amount needed to eat is more than the agent has left
-        // the agent "dies"
+
         
 
     };
@@ -219,10 +229,12 @@ class Cow
         // and add it to the food the agent currently has stored
         float mouthful = scape.harvest( (int)loc.x, (int)loc.y, grazingRate );
         
+        // seek new pastures ...
         if (mouthful < grazingRate)
         {
          status = 'R';
         }
+        // eat up!
         else if (mouthful == grazingRate)
         {
           stomach += mouthful;
@@ -233,10 +245,16 @@ class Cow
  ///////////////////////////////////////////////////////////////
     void moove( ArrayList<Cow> herd )// Firescape scape )
     { 
+        dest.add(herding( herd ).setMag(5));
+      
+        // cow heading should be toward destination, at speed
         PVector velocity = PVector.sub(dest, loc);
         float mag = velocity.mag();
-        velocity.add(separate(herd).setMag(50));
         
+        // avoid collisions
+        velocity.add(separate(herd).setMag(displayScale));
+        
+        // if still distant
         if ( velocity.mag() > speed )
         {
           velocity.setMag(speed);
@@ -246,6 +264,7 @@ class Cow
           
           status = 'M';
         }
+        // if arrived
         else if ( velocity.mag() <= speed )
         {
           loc.x = dest.x;
@@ -263,12 +282,12 @@ class Cow
     // Keep your distance!
     // Method checks for nearby cows and adjusts destination
     PVector separate (ArrayList<Cow> herd) {
-      float desiredseparation = 8;
+      float desiredseparation = displayScale;
       PVector steer = new PVector(0,0);
       int count = 0;
-      // For every boid in the system, check if it's too close
+      // For every cow in the system, check if it's too close
       for (Cow other : herd) {
-        if (cowMass < other.cowMass){
+        if (mass < other.mass){
           float d = PVector.dist(loc,other.loc);
           // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
           if ((d > 0) && (d < desiredseparation)) {
@@ -288,7 +307,6 @@ class Cow
   
       // As long as the vector is greater than 0
       if (steer.mag() > 0) {
-        // Implement Reynolds: Steering = Desired - Velocity
         steer.normalize();
         //steer.mult(speed);
         //steer.sub(velocity);
@@ -297,7 +315,42 @@ class Cow
       return steer;
     }
  
- 
+  ///////////////////////////////////////////////////////////////
+    // Keep your distance!
+    // Method checks for nearby cow destinations and adjusts own destination
+    PVector herding (ArrayList<Cow> herd) {
+      float desiredseparation = displayScale*2;
+      PVector steer = new PVector(0,0);
+      int count = 0;
+      // For every cow destination in the system, check if it's too close
+      for (Cow other : herd) {
+        if (mass < other.mass){
+          float d = PVector.dist(dest,other.dest);
+          // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+          if ((d > 0) && (d < desiredseparation)) {
+            // Calculate vector pointing away from neighbor
+            PVector diff = PVector.sub(loc,other.dest);
+            diff.normalize();
+            diff.div(d);        // Weight by distance
+            steer.add(diff);
+            count++;            // Keep track of how many
+          }
+        }
+      }
+      // Average -- divide by how many
+      if (count > 0) {
+        steer.div((float)count);
+      }
+  
+      // As long as the vector is greater than 0
+      if (steer.mag() > 0) {
+        steer.normalize();
+        //steer.mult(speed);
+        //steer.sub(velocity);
+        //steer.limit(maxforce);
+      }
+      return steer;
+    }
  
   ///////////////////////////////////////////////////////////////
     float wrap( float index, int iSize)

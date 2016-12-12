@@ -5,7 +5,7 @@ class Firescape extends Lattice   // when a class "extends" another class
                                   // we want all of the lattice functionality but we 
                                   // what it to do a few other things as well
 
-      float maxCapacity = 5;      // the maximum amount of food
+      float maxCapacity = 100;      // the maximum amount of food
                                   // a cell in the landscape can hold
       
       float capacity[][];         // the capacity to hold food at each x,y cell 
