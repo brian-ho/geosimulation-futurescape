@@ -2,14 +2,14 @@ import java.util.Collections;
 // main sketch
 
 ArrayList< cow > herd;  // an ArrayList that holds instances of our sugarscape agent
-int popSize = 1;        // and the herd size we use to initialize them
+int popSize = 20;        // and the herd size we use to initialize them
 
 int latW = 50;
 int latH = 50;
 void setup()
 {
     size(500,500);
-    frameRate(5);  
+    frameRate(30);  
   
     herd = new ArrayList< cow >();
     
@@ -27,7 +27,8 @@ void setup()
 
 void draw()
 {
-
+  println();
+  println(frameCount);
   background(0);
   noStroke();
   

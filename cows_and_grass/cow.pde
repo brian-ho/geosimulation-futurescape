@@ -15,14 +15,9 @@ class cow
    float cowMass = 1;             // when it was but a wee calf ...
    int vision;                 // vision range or kernel size
    int w, h;                   // Firescape width and height
-   int status;
+   char status;
    boolean alive = true;       // zombie cows?
    Kernel k;                   // kernel for the cow
- 
-    int R = 0;
-    int M = 1;
-    int G = 2;
-    int P = 3;
  
    ///////////////////////////////////////////////////////////////
    // constructor
@@ -79,9 +74,6 @@ class cow
  // function to run multiple object behaviors
     void update()// Firescape scape )
     {
-      println();
-      println(frameCount);
-
        // at a given frame, a cow is doing one (or more) of the follwing:
        // (1) ruminate : cow pondering logic
        //     cow looks in neighborhood for desirable grass.
@@ -93,73 +85,70 @@ class cow
        
        // (3) graze : if at destination, eat down grass
        
-       // (4) poop : dows what it says on the tin
+       // (4) poop : does what it says on the tin
         
-        if (status == G)
+        switch(status)
         {
-          println ("-decided to graze");
-          graze(); //scape);
+          case 'G': 
+            graze();
+            break;
+          case 'M': 
+            moove();
+            break;
+          case 'R':
+            ruminate();
+            break;
+          case 'P':
+            poop();
+            break;
         }
-        
-        else if (status == M) {
-          println ("-decided to move");
-          moove();
-        }
-        
-
-        
-        //poop ( scape );
     };
         
  ///////////////////////////////////////////////////////////////
     void drawMyself()
     {
         // if alive, draw to the screen
-        // the 50x50 Firescape is scaled to fit the screen
-      String thought = "moo ...";
+      String thought = "moo...";
         if( alive ) 
         {
-            strokeWeight( 1 );
-            stroke( 255, 255, 255 );
-
-            if ( status == R ){ 
-              println( "THINKING");
-              fill ( 255, 255, 255 );
-            }
-            else if ( status == G ){  
-              println ("EATING");
-              fill (0, 0, 0 );
-            }
-            else if ( status == M ){
-              println("MOVING");
-              fill (255, 0, 0 );
-            }
-            //float xCow = map( loc.x, 0, w, 0, width );
-            //float yCow = map( loc.y, 0, h, 0, height );
-            ellipse( loc.x, loc.y, 8, 8 );
-            fill( 255, 0, 0 );
-            text( thought + " food: " + nf(foodAmount, 1, 2), loc.x + 5, loc.y);
-            text( "V:" + vision + " G:" + grazingRate + " R:" + ruminateRate, loc.x +5, loc.y+15);
-            
             noStroke();
             fill( 255, 0, 0 );
-            //float xDest = map( dest.x, 0, w, 0, width );
-            //float yDest = map( dest.y, 0, h, 0, height );
             ellipse( dest.x, dest.y, 4, 4 );
             
             strokeWeight( 1 );
             stroke( 255, 0 , 0 );
             line( loc.x, loc.y, dest.x, dest.y );
             
-            println( "LOC: " + loc.x + ", " + loc.y );
-            println( "DEST: " + dest.x + ", " + dest.y );
+            stroke( 255, 255, 255 );
+            
+            switch(status)
+            {
+              case 'G': 
+                thought = "nom...";
+                fill (0,0,0);
+                break;
+              case 'M': 
+                thought = "moo...";
+                fill (255,255,255);
+                break;
+              case 'R':
+                thought = "hmm...";
+                fill (255,0,0);
+                break;
+            }
+            
+            ellipse( loc.x, loc.y, 8, 8 );
+            fill( 255, 0, 0 );
+            text( thought, loc.x + 10, loc.y);
+            //text( "V:" + vision + " G:" + grazingRate + " R:" + ruminateRate, loc.x + 10, loc.y + 15);
+            text("food: " + nf(stomach, 1, 2),loc.x + 10, loc.y + 15);
+            //text( status + " " + dest.x + ", " + dest.y, loc.x + 10, loc.y + 30);
         }  
     };
     
    ///////////////////////////////////////////////////////////////
     void ruminate()// Firescape scape )
     {
-       println("ruminate");
        // using the Kernel's getMax() function 
        // find the closest cell with the maximum amount of food
        // use that cell's x, y location and move there. 
@@ -176,18 +165,22 @@ class cow
         }
         else
         {*/
-          println("looking from", "L:", loc.x, loc.y);
-          PVector temp = new PVector();
-          float tempX = loc.x;
-          float tempY = loc.y;
-          //dest.x = (int)wrap( temp.x + random(-vision,vision), w );
-          //dest.y = (int)wrap( temp.y + random(-vision,vision), h );
-          dest.x = (int)(tempX + random(-vision,vision));
-          println(loc.x, dest.x, tempX);
-          dest.y = (int)(tempY + random(-vision,vision));
+          PVector delta = new PVector();
+          delta.x = (int)random (-vision, vision);
+          delta.y = (int)random (-vision, vision);
+
+          dest.x = wrap( loc.x + delta.x, width);
+          dest.y = wrap( loc.y + delta.y, width);
           
-          println ("NEW DESTINATION", "D:", dest.x, dest.y, "L:", loc.x, loc.y);
-          arrived = false;
+          if ( delta.x == 0 && delta.y == 0 )
+          {
+            status = 'R';
+          }
+          else if ( delta.x != 0 || delta.y != 0 )
+          {
+            status = 'M';
+            println ("NEW DESTINATION", "D:", dest.x, dest.y, "L:", loc.x, loc.y);
+          }
         //}
         
         // subtract the food amount needed to stay alive for one time step
@@ -200,7 +193,6 @@ class cow
         
         //if( foodAmount <= 0 ) 
         //    alive = false; 
-        status = M;
     };
     
  ///////////////////////////////////////////////////////////////
@@ -214,7 +206,7 @@ class cow
         //}
         //else if (temp != 0){
         //  foodAmount += temp;
-        status = G;
+        status = 'G';
         ruminate();
         //}
     };
@@ -222,25 +214,22 @@ class cow
  ///////////////////////////////////////////////////////////////
     void moove()// Firescape scape )
     { 
-        println("move");
         PVector velocity = PVector.sub(dest, loc);
         float mag = velocity.mag();
-        println(velocity.mag(), speed);
         if ( velocity.mag() > speed )
         {
           velocity.setMag(speed);
             
-          loc.x = wrap( loc.x + velocity.x, w );
-          loc.y = wrap( loc.y + velocity.y, h );
-          status = M;
+          loc.x = wrap( loc.x + velocity.x, width );
+          loc.y = wrap( loc.y + velocity.y, height );
+          status = 'M';
         }
-        else if ( velocity.mag() < speed )
+        else if ( velocity.mag() <= speed )
         {
           loc.x = dest.x;
           loc.y = dest.y;
           println ("ARRIVED", "D:", dest.x, dest.y, "L:", loc.x, loc.y);
-          status = G;
-          arrived = true;
+          status = 'G';
         }
     };
     
