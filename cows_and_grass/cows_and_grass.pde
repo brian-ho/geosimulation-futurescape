@@ -26,8 +26,8 @@ void setup()
     frameRate(30);  
     
     scape = new Firescape( wScape, hScape );
-    scape.addFoodPoint( 7, 20, 75, 20 );  // add a food mound at x,y location [15,40] 
-    //scape.addFoodPoint( 40, 15, 6, 20 );  // add a food mound at x,y location [40,15]
+    scape.addGrassPoint( 7, 20, 75, 20 );  // add a food mound at x,y location [15,40] 
+    //scape.addGrassPoint( 40, 15, 6, 20 );  // add a food mound at x,y location [40,15]
     
     scape.addGrowthRate(7, 20, southMound, 18);
     //scape.addGrowthRate(40, 15, northMound, 18);
@@ -35,7 +35,7 @@ void setup()
     scape.beta        = foodCollapse;
     scape.recoverRate = recoverRate;
     
-    scape.growFood(25);
+    scape.growGrass(25);
   
     herd = new Herd();
     
@@ -61,7 +61,7 @@ void draw()
   noStroke();
   
   // run and draw the landscape on the screen 
-  scape.growFood();
+  scape.growGrass();
   scape.drawScape();
   
   herd.run();
