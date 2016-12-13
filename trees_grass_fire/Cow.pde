@@ -96,7 +96,7 @@ class Cow
             graze( scape );
             break;
           case 'M': 
-            moove( herd );
+            moove( herd, scape );
             break;
           case 'R':
             ruminate( scape, herd );
@@ -243,7 +243,7 @@ class Cow
     };
 
  ///////////////////////////////////////////////////////////////
-    void moove( ArrayList<Cow> herd )// Firescape scape )
+    void moove( ArrayList<Cow> herd, Firescape scape )
     { 
         dest.add(herding( herd ).setMag(displayScale/2));
       
@@ -251,13 +251,14 @@ class Cow
         PVector velocity = PVector.sub(dest, loc);
         float mag = velocity.mag();
         
-        // avoid collisions
-        velocity.add(separate(herd).setMag(displayScale/2));
         
         // if still distant
-        if ( velocity.mag() > speed )
+        if ( mag > speed )
         {
           velocity.setMag(speed);
+                  // avoid collisions
+          velocity.add(separate(herd).setMag(displayScale/2));
+          velocity.add( fear ( scape ).setMag(speed*2));
             
           loc.x = wrap( loc.x + velocity.x, width );
           loc.y = wrap( loc.y + velocity.y, height );
@@ -267,6 +268,9 @@ class Cow
         // if arrived
         else if ( velocity.mag() <= speed )
         {
+          velocity.add(separate(herd).setMag(displayScale/2));
+          velocity.add( fear ( scape ).setMag(100));
+          
           loc.x = dest.x;
           loc.y = dest.y;
           status = 'G';
@@ -335,6 +339,50 @@ class Cow
             steer.add(diff);
             count++;            // Keep track of how many
           }
+        }
+      }
+      // Average -- divide by how many
+      if (count > 0) {
+        steer.div((float)count);
+      }
+  
+      // As long as the vector is greater than 0
+      if (steer.mag() > 0) {
+        steer.normalize();
+        //steer.mult(speed);
+        //steer.sub(velocity);
+        //steer.limit(maxforce);
+      }
+      return steer;
+    }
+    
+    ///////////////////////////////////////////////////////////////
+    // Keep your distance!
+    // Method checks for nearby cow destinations and adjusts own destination
+    PVector fear ( Firescape scape ) {
+      
+      float desiredseparation = displayScale*2;
+      PVector steer = new PVector(0,0);
+      int count = 0;
+      
+      // For every cow destination in the system, check if it's too close
+      for ( PVector f : scape.fires()) {
+          int fireX = floor(map(f.x, 0, w, 0, width));
+          int fireY = floor(map(f.y, 0, h, 0, height));
+          
+          f = new PVector (fireX, fireY);
+          
+          float d = PVector.dist(loc, f);
+          // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
+          if ((d > 0) && (d < desiredseparation)) {
+            println("FLEE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            // Calculate vector pointing away from neighbor
+            PVector diff = PVector.sub(loc, f);
+            diff.normalize();
+            diff.div(d);        // Weight by distance
+            steer.add(diff);
+            count++;            // Keep track of how many
+          
         }
       }
       // Average -- divide by how many

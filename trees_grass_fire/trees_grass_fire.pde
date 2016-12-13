@@ -61,6 +61,8 @@ void draw()
   background(200);
   noStroke();
   
+  scape.runScape();
+  
   // run and draw the landscape on the screen 
   scape.growGrass();
   scape.drawScape();

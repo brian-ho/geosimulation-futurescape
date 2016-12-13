@@ -21,9 +21,9 @@ class Firescape extends Lattice   // when a class "extends" another class
       // VARIABLES FOR POLLUTION
                                   
       float grass[][];             // new matrix that holds the grass       
-      float poop[][];        // pollution matrix
+      float poop[][];        // poop matrix
       boolean pollute = false;     // we can set if we're pulluting or not
-      float alpha = 0.5;          // pollution rate
+      float alpha = 0.5;          // poop rate
       float beta = 5;             // beta is threshold for grass collapse
       float recoverRate = 0.999;  // rate at which polluted cell dissipates 
       
@@ -35,13 +35,13 @@ class Firescape extends Lattice   // when a class "extends" another class
         capacity   = new float[w][h];  // initialize the capacity array
         growth     = new float[w][h];  // initialize the growth array
         grass      = new float[w][h];  // initialize grass matrix
-        poop       = new float[w][h];  // initialize pollution matrix
+        poop       = new float[w][h];  // initialize poop matrix
         
         // NOTE: LATTICE NO LONGER HOLDS "Grass" IT HOLDS THE RATIO
         // BETWEEN Grass AND POLLUTION. THIS IS NOW WHAT AN AGENT USES
         // TO CHOOSE LOCATION
         
-        // lattice(x,y) = grass(x,y) / ( 1+pollution(x,y) )
+        // lattice(x,y) = grass(x,y) / ( 1+poop(x,y) )
       };
 
  ///////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ class Firescape extends Lattice   // when a class "extends" another class
                    
           if( pollute == true )            // if we are polluting
           {                                // the amount is proportional to the amount we harvested
-              pollution[x][y] += harvestAmount * alpha;
+              poop[x][y] += harvestAmount * alpha;
           }
           
           calculatePollutionRatio(x,y);   // update the ratio between grass and pollutation at this location
@@ -86,8 +86,8 @@ class Firescape extends Lattice   // when a class "extends" another class
           for( int x = 0; x < w; x++ ){
             for( int y = 0; y < h; y++){
              
-                    // if pollution is less than beta then grass will grow there
-                    if( grass[x][y] < capacity[x][y] && pollution[x][y] < beta )
+                    // if poop is less than beta then grass will grow there
+                    if( grass[x][y] < capacity[x][y] && poop[x][y] < beta )
                     {
                         grass[x][y] = grass[x][y]+ growthRate;
                         
@@ -108,8 +108,8 @@ class Firescape extends Lattice   // when a class "extends" another class
           for( int x = 0; x < w; x++ ){
             for( int y = 0; y < h; y++){
              
-                    // if pollution is less than beta then grass will grow there
-                    if( grass[x][y] < capacity[x][y] && pollution[x][y] < beta )
+                    // if poop is less than beta then grass will grow there
+                    if( grass[x][y] < capacity[x][y] && poop[x][y] < beta )
                     {
                         grass[x][y] += growth[x][y];
                        
@@ -173,9 +173,9 @@ class Firescape extends Lattice   // when a class "extends" another class
       void calculatePollutionRatio( int x, int y )
       {
             // allow polluted cell to recover by a small amount
-            // then calculate the proportion of grass to pollution
-            pollution[x][y] *= recoverRate;
-            lattice[x][y] = grass[x][y] / (1 + pollution[x][y] );
+            // then calculate the proportion of grass to poop
+            poop[x][y] *= recoverRate;
+            lattice[x][y] = grass[x][y] / (1 + poop[x][y] );
             
       }
 
@@ -194,6 +194,9 @@ class Firescape extends Lattice   // when a class "extends" another class
             
             fill( 255-val, val, 255-val, 50 );
             rect( drawX, drawY, dimn, dimn);
+            
+            //strokeWeight(1);
+            //stroke(255);
           }
         }
       }
