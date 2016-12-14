@@ -20,6 +20,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       // VARIABLES FOR POLLUTION
                                   
       float grass[][];             // new matrix that holds the grass       
+      float tree[][];             // new matrix that holds the grass     
       float poop[][];        // poop matrix
       boolean pollute = false;     // we can set if we're pulluting or not
       float alpha = 0.5;          // poop rate
@@ -39,6 +40,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       ASCgrid fireCount;            // class to export firecount as ascii grid
       NLCDswatch nlcdColors;        // a simple swatch of land cover colors
       NLCDhatch nlcdHatches;        // a simple swatch of land cover colors
+      NLCDconvert nlcdConverts;        // a simple swatch of land cover colors
       
       Table strikes;
       
@@ -67,6 +69,7 @@ class Firescape extends Lattice   // when a class "extends" another class
         capacity   = new float[w][h];  // initialize the capacity array
         growth     = new float[w][h];  // initialize the growth array
         grass      = new float[w][h];  // initialize grass matrix
+        tree      = new float[w][h];  // initialize grass matrix
         poop       = new float[w][h];  // initialize poop matrix
         
         // NOTE: LATTICE NO LONGER HOLDS "Grass" IT HOLDS THE RATIO
@@ -87,6 +90,7 @@ class Firescape extends Lattice   // when a class "extends" another class
          
           
          nlcdHatches = new NLCDhatch();
+         nlcdConverts = new NLCDconvert();
          
          // Bring in GIS rasters
          ag = new ASCgrid( "Data/veg.asc");
@@ -98,6 +102,7 @@ class Firescape extends Lattice   // when a class "extends" another class
          dem.fitToScreen();
          dem.updateImage();
          
+         seedScape( nlcdConverts.getConverts() );
          
          calculateFuelDensity();
          
@@ -238,6 +243,28 @@ class Firescape extends Lattice   // when a class "extends" another class
       };
       
  ///////////////////////////////////////////////////////////////      
+      void seedScape( int[] converts)
+      {
+          //for every cell in the lattice, check if it is below its maximum
+          //capacity, if so, grow the grass incrementally by "growthRate" amount
+          //if it is at capacity, leave it.
+        
+          for( int x = 0; x < w; x++ ){
+            for( int y = 0; y < h; y++){
+              float grassVal = 0;
+              // every pixel in cell
+              for ( int i = 0; i < scale*scale; i++ )
+              {
+                grassVal += converts[int(ag.get(x, y))];
+              }
+                tree[x][y] = 255-round( grassVal/scale*scale);
+                grass[x][y] = round( grassVal/scale*scale);
+            }
+          }
+      };
+ 
+ 
+ ///////////////////////////////////////////////////////////////      
       void growGrass( float growthRate )
       {
           //for every cell in the lattice, check if it is below its maximum
@@ -301,8 +328,7 @@ class Firescape extends Lattice   // when a class "extends" another class
                   // we add capacity in case there are multiple grass points, where they overlap
                   // the capacity for grass adds together
                   capacity[x][y] = capacity[x][y] + capValue;
-                  
-                      grass[x][y] = capacity[x][y];
+                  grass[x][y] = capacity[x][y];
             }}
       };
       
@@ -355,10 +381,10 @@ class Firescape extends Lattice   // when a class "extends" another class
              //}
 
             //else {
-              noStroke();
-              //fill( 255-val, val, 255-val, 50 );
+            noStroke();
+            fill( 255-val, val, 255-val, 50 );
             //}
-            //rect( drawX, drawY, dimn, dimn);
+            rect( drawX, drawY, dimn, dimn);
             
             //strokeWeight(1);
             //stroke(255);
