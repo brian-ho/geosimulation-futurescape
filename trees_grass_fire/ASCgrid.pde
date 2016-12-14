@@ -275,8 +275,12 @@ public class ASCgrid
             
                 int px = floor( map( this.get(i,j), minValue, maxValue, 0, 255) );
                 int pxc = color(px,px,px);
-                img.set(i,j,pxc);          
-          }}
+                img.set(i,j,pxc);  
+                //fill(px, px, px);
+                //rect(i,j,1,1);
+                
+          }
+        }
         
         imageLoaded = true;  
         return img;   

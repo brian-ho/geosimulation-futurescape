@@ -5,13 +5,12 @@ class Firescape extends Lattice   // when a class "extends" another class
                                   // we want all of the lattice functionality but we 
                                   // what it to do a few other things as well
 
-      float maxCapacity = 100;      // the maximum amount of grass
+      float maxCapacity = 100;    // the maximum amount of grass
                                   // a cell in the landscape can hold
       
       float capacity[][];         // the capacity to hold grass at each x,y cell 
                                   // in the lattice
-                                  
-      
+
       float growth[][];           // each cell in the environment can have a different
                                   // growth rate, set with a function similar to 
                                   // addGrassPoint()
@@ -35,10 +34,10 @@ class Firescape extends Lattice   // when a class "extends" another class
                                     // lat3 holds the timer 
       Lattice lat4;                 // holds how often a cell was burnt, will write out to GIS                           
       Kernel  k;                    // our kernel function  
-      //ASCgrid ag;                   // class to read in ascii grid file of Land Cover
+      ASCgrid ag;                   // class to read in ascii grid file of Land Cover
       //ASCgrid dem;                  // class to read in ascii grid file of elevation
       ASCgrid fireCount;            // class to export firecount as ascii grid
-      //NLCDswatch nlcdColors;        // a simple swatch of standard land cover colors
+      //NLCDswatch nlcdColors;        // a simple swatch of land cover colors
       
       int kernelSize = 1;           // simple Moore neighborhood
       
@@ -56,7 +55,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       
       ArrayList <PVector> fires;
       
-      //ASCgrid for land cover[][]
+      //ASCgrid for land cover[
       //ASC grid for DEM elevation[][]
       // lat for current state
       // lat for next state
@@ -70,7 +69,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       Firescape( int _w, int _h )
       {        
         super( _w, _h, 0);  // tell the underlying lattice how big it is
-        println ("INTIALIZED:", w, h);
+        println ("INTIALIZED FIRESCAPE cell dimensions:", w, 'x', h);
         capacity   = new float[w][h];  // initialize the capacity array
         growth     = new float[w][h];  // initialize the growth array
         grass      = new float[w][h];  // initialize grass matrix
@@ -92,11 +91,11 @@ class Firescape extends Lattice   // when a class "extends" another class
          k.setNeighborhoodDistance( kernelSize );  
          k.isNotTorus();
          
-         /*
-         ag = new ASCgrid( "Rasters/nlcd2011.asc");
+         
+         ag = new ASCgrid( "Rasters/veg.asc");
          ag.fitToScreen();
-         ag.updateImage( nlcdColors.getSwatch() );
-
+         ag.updateImage();
+         /*
          dem = new ASCgrid( "Rasters/azdem.asc" );
          dem.fitToScreen();
          dem.updateImage();
@@ -116,6 +115,7 @@ class Firescape extends Lattice   // when a class "extends" another class
  ///////////////////////////////////////////////////////////////
      void runScape()
      {
+       
         fires.clear();
         // Unlock previous state lattice.
         lat2.unlockAll();
@@ -338,7 +338,8 @@ class Firescape extends Lattice   // when a class "extends" another class
 
 /////////////////////////////////////////////////////////////// 
       void drawScape ()
-      { 
+      {
+        image(   ag.getImage(),0,0 );
         for( int x = 0; x < w; x++){
         for( int y = 0; y < h; y++){
              

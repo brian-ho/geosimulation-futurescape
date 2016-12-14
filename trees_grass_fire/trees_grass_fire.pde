@@ -4,8 +4,8 @@
 Firescape scape;
 Herd herd;
 
-int wScape = 25;
-int hScape = 25;
+int wScape = 250;
+int hScape = 250;
 
 int popSize = 20;        // and the herd size we use to initialize them
 
@@ -40,6 +40,7 @@ void setup()
   
     herd = new Herd();
     
+    // make cows
     // fill the ArrayList with popSize number of agents
     for( int n = 0; n < popSize; n++ )
     { 
@@ -55,17 +56,19 @@ void setup()
 
 void draw()
 {
+  clear();
+
   println("-----------------------");
   println(frameCount);
   
-  background(200);
+  // background(200);
   noStroke();
   
+  // run and draw the landscape on the screen
   scape.runScape();
-  
-  // run and draw the landscape on the screen 
   scape.growGrass();
   scape.drawScape();
   
+  // run and draw cows
   herd.run();
 }
