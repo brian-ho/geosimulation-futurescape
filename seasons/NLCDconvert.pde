@@ -32,7 +32,7 @@ public class NLCDconvert
             NLCD[105] = 102; //Tree Cover >= 50 and < 60%
             NLCD[106] = 76; //Tree Cover >= 60 and < 70%
             NLCD[107] = 51; //Tree Cover >= 70 and < 80%
-            NLCD[111] = 51; //Shrub Cover >= 10 and < 20%
+            NLCD[111] = 26; //Shrub Cover >= 10 and < 20%
             NLCD[112] = 76; //Shrub Cover >= 20 and < 30%
             NLCD[113] = 102; //Shrub Cover >= 30 and < 40%
             NLCD[114] = 127; //Shrub Cover >= 40 and < 50%

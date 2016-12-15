@@ -179,24 +179,24 @@ class Cow
        // if there is no cell within the kernel that has food
        // move randomly from current location
         PVector locScape = new PVector (xScape, yScape);
-        PVector maxNeighbor = k.getMax( scape, locScape );
+        PVector maxNeighbor = k.getMax( scape.getGrass(), locScape );
         
         // grass is always greener ... to a point
-        if( maxNeighbor.z > 1.0 )
+        if( maxNeighbor.z > 0.0 )
         {
           dest.x = map(maxNeighbor.x, 0, w, 0, width) + floor(random(0,scale));
           dest.y = map(maxNeighbor.y, 0, h, 0, height) + floor(random(0,scale));
           
-          //println ( "NEW DEST:", dest.x, dest.y);
+          println ( "NEW DEST:", dest.x, dest.y);
           status = 'M';
         }
-        // cows be patient
+        /*// cows be patient
         else if( maxNeighbor.z > 0 )
         {
           dest = loc;
           status = 'R';
         }
-        
+        */
         // wanderin' about ...
         else
         {
