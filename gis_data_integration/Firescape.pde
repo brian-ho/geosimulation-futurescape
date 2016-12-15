@@ -120,7 +120,7 @@ class Firescape extends Lattice   // when a class "extends" another class
  ///////////////////////////////////////////////////////////////
      void runScape()
      {
-        image(   dem.getImage(),0,0 );
+        //image(   ag.getImage(),0,0 );
         // reset holder of fires
         fires.clear();
         
@@ -245,9 +245,7 @@ class Firescape extends Lattice   // when a class "extends" another class
  ///////////////////////////////////////////////////////////////      
       void seedScape( int[] converts)
       {
-          //for every cell in the lattice, check if it is below its maximum
-          //capacity, if so, grow the grass incrementally by "growthRate" amount
-          //if it is at capacity, leave it.
+          //intializes the state of every cell based on NLDC ASCII file.
         
           for( int x = 0; x < w; x++ ){
             for( int y = 0; y < h; y++){
@@ -255,10 +253,11 @@ class Firescape extends Lattice   // when a class "extends" another class
               // every pixel in cell
               for ( int i = 0; i < scale*scale; i++ )
               {
-                grassVal += converts[int(ag.get(x, y))];
+                grassVal += converts[int(ag.get(x, y))] + int(random(-25,25));
               }
-                tree[x][y] = 255-round( grassVal/scale*scale);
-                grass[x][y] = round( grassVal/scale*scale);
+              tree[x][y] = 255-round( grassVal/scale*scale );
+              grass[x][y] = round( grassVal/scale*scale );
+              println(tree[x][y]);
             }
           }
       };
@@ -360,7 +359,6 @@ class Firescape extends Lattice   // when a class "extends" another class
             // then calculate the proportion of grass to poop
             poop[x][y] *= recoverRate;
             lattice[x][y] = grass[x][y] / (1 + poop[x][y] );
-            
       }
 
 /////////////////////////////////////////////////////////////// 
@@ -376,7 +374,7 @@ class Firescape extends Lattice   // when a class "extends" another class
              //if( currentState > 0)
              //{
               noStroke();
-              //fill( swatch[ currentState ] );
+              fill( swatch[ currentState ] );
               //rect( drawX, drawY, dimn, dimn);
              //}
 

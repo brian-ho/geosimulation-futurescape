@@ -4,8 +4,9 @@
 Firescape scape;
 Herd herd;
 
-int wScape = 125;
-int hScape = 125;
+// swatches are set up for a 4x4 grid
+int wScape =250;
+int hScape = 250;
 float scale;
 
 int month;                // keeps track of time
@@ -26,17 +27,17 @@ float southMound  = growthRate2;
 void setup()
 {
  
-    size(500,500);
+    size(1000,1000);
     frameRate(30);  
     
     scale = width/wScape;
     
     scape = new Firescape( wScape, hScape );
-    scape.addGrassPoint( 7, 20, 75, 20 );  // add a food mound at x,y location [15,40] 
+    //scape.addGrassPoint( 7, 20, 75, 20 );  // add a food mound at x,y location [15,40] 
     //scape.addGrassPoint( round(random(0, wScape)), round(random(0, hScape)), round(random(1, 100)), 20 );  // add a food mound at x,y location [40,15]
     //scape.addGrassPoint( round(random(0, wScape)), round(random(0, hScape)), round(random(1, 100)), round(random(50, 75)) );
     
-    scape.addGrowthRate(7, 20, southMound, 18);
+    //scape.addGrowthRate(7, 20, southMound, 18);
     //scape.addGrowthRate(round(random(0, hScape)), round(random(0, hScape)), random(0, 1), 18);
     scape.alpha       = polluteRate;
     scape.beta        = foodCollapse;
