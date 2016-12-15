@@ -31,7 +31,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       // FIRE STUFF
       // a list of ints that equate to cell fire status (bare, fuel, burning, burnt, growing)?
       // series of lattices 
-      Lattice lat1, lat2, lat3;     // our lattices that hold the cellular environment
+      Lattice lat1, lat2, lat3;     // our lattices that hold the cellular environmenth
                                     // lat3 holds the timer 
       Lattice lat4;                 // holds how often a cell was burnt, will write out to GIS 
       Lattice lat5;                 // holds how often a cell was burnt, will write out to GIS                            
@@ -252,8 +252,9 @@ class Firescape extends Lattice   // when a class "extends" another class
       {
         //println("DRAWING LANDINGS");
         stroke(0,0,0);
-        fill(255,255,255);
-        rect(h.x,h.y,10,10);
+        fill(255,206,127);
+       rectMode(CENTER);
+        rect(h.x,h.y,8,8);
       }
      
     // replace lat1 with our temporary lattice, lat2      
@@ -276,9 +277,26 @@ class Firescape extends Lattice   // when a class "extends" another class
           
           float harvestAmount;
           if (grass[x][y] <= grazingRate) {                         
-            harvestAmount = grass[x][y]; // grab the amount of grass at x,y
+            harvestAmount = grass[x][y];         // grab the amount of grass at x,y
             grass[x][y] = 150;                   // set the new amount of grass there to zero
             tree[x][y] = 0;
+            
+           for (int i = -1; i < 2; i++) {
+            for (int j = -1; j < 2; j++ ) {
+              if  (x + j < 0 || y + i < 0 || x + j > 124 || y + i > 124){}
+              else {
+                    int tempX=x+j;
+                    int tempY=y+i;
+                    
+                    float distToCow = dist(x, y, tempX, tempY);
+                    float removal      = map( distToCow, 0, 8, 100, 25 );
+                    println(removal);
+                    
+                tree[tempX][tempY] = constrain(tree[tempX][tempY]-removal+random(-10,10),0,255);
+                grass[tempX][tempY] = constrain(grass[tempX][tempY]+removal+random(-10,100),0,255);
+              }
+            }
+          }
           }
           else{
             harvestAmount = grazingRate;
@@ -642,6 +660,26 @@ void placeLanding (int x, int y )
     //int latX = floor(map(x,0,width,0,w));
     //int latY = floor(map(y,0,height,0,h));
     landings.add(new PVector(x,y,0));
+
+          int latX = floor(map(mouseX,0,width,0,w));
+          int latY = floor(map(mouseY,0,height,0,h));
+          
+          for (int i = -5; i < 5; i++) {
+            for (int j = -5; j < 5; j++ ) {
+              if  (latX + j < 0 || latY + i < 0 || latX + j > 124 || latY + i > 124){}
+              else {
+                    int tempX=latX+j;
+                    int tempY=latY+i;
+                    
+                    float distToLanding = dist(latX, latY, tempX, tempY);
+                    float removal      = map( distToLanding, 0, 8, 255, 50 );
+                    println(removal);
+                    
+                tree[tempX][tempY] = constrain(tree[tempX][tempY]-removal*2+random(-10,10),1,255);
+                grass[tempX][tempY] = constrain(grass[tempX][tempY]+removal+random(-10,10),25,255);
+              }
+            }
+          }
 };
 
 
