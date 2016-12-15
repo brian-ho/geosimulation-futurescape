@@ -72,7 +72,7 @@ void draw()
   if ( frameCount % 30 == 0 ){
   scape.cycleDefs( month-1 );}
   
-  //background(0);
+  background(0);
   
   // run and draw the landscape on the screen
   scape.runScape();

@@ -570,17 +570,17 @@ float[][] getGrass ( )
             
             if (tree[x][y] >= 0 && grass[x][y] >= 0 ){
               if (tree[x][y] > grass [x][y]) {
-                hatch = new color[]                                          
+                hatch = new color[]                                        // swatch for TREE
                                                                             {Gr, Tr, Gr, Tr,
                                                                              Tr, Gr, Tr, Gr,
                                                                              Gr, Tr, Gr, Tr,
                                                                              Tr, Gr, Tr, Gr}; }
               else {
-                hatch = new color[] //{b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b};}} swatch for 
-                                                                            {Gr, Gr, Tr, Gr,
-                                                                             Gr, Tr, Gr, Tr,
-                                                                             Tr, Gr, Tr, Gr,
-                                                                             Gr, Tr, Gr, Gr}; }}
+                hatch = new color[]                                        // swatch for GRASS
+                                                                            {Gr, Tr, Gr, Hr,
+                                                                             Tr, Gr, Hr, Gr,
+                                                                             Gr, Hr, Gr, Tr,
+                                                                             Hr, Gr, Tr, Gr}; }}
             else {return;};
           
           /*
