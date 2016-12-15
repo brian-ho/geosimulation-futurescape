@@ -5,8 +5,8 @@ Firescape scape;
 Herd herd;
 
 // swatches are set up for a 4x4 grid
-int wScape = 25;
-int hScape = 25;
+int wScape = 125;
+int hScape = 125;
 float scale;
 
 int month;                // keeps track of time
@@ -43,8 +43,8 @@ void setup()
     scape.beta        = foodCollapse;
     scape.recoverRate = recoverRate;
     
-    scape.growGrass(25);
-  
+    //scape.growGrass(25);
+    /*  
     herd = new Herd();
     
     // make cows
@@ -57,7 +57,7 @@ void setup()
         
         Cow c = new Cow( wScape, hScape, graze, ruminate, vision );
         herd.addCow( c );
-    }
+    }*/
 };
 
 
@@ -72,12 +72,11 @@ void draw()
   if ( frameCount % 30 == 0 ){
   scape.cycleDefs( month-1 );}
   
-  background(0);
-  noStroke();
+  //background(0);
   
   // run and draw the landscape on the screen
   scape.runScape();
-  scape.growGrass();
+  scape.growScape();
   // run and draw cows
-  herd.run();
+  //herd.run();
 }

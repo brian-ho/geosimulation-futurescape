@@ -55,7 +55,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       int BURNT   = 3;  
       int GROWING = 4;
       
-      int burningTime = 10;
+      int burningTime = 2;
       int burntSeason   = 180;     // how many time steps a burnt cell stays burnt
       int growingSeason = 360; 
       
@@ -91,7 +91,6 @@ class Firescape extends Lattice   // when a class "extends" another class
          k.setNeighborhoodDistance( kernelSize );  
          k.isNotTorus();
          
-          
          nlcdHatches = new NLCDhatch();
          nlcdConverts = new NLCDconvert();
          
@@ -284,22 +283,22 @@ class Firescape extends Lattice   // when a class "extends" another class
                 for ( int j = 0; j < scale; j++ ){
                   
                   int temp = converts[int(ag.get(int(x*scale) + i, int(y*scale) + j))];
-                  if (temp == 0){
-                    grassVal = 0; break;
+                  if (temp == -9999){
+                    grassVal = -9999; break;
                   }
                   else{
                     grassVal += converts[int(ag.get(int(x*scale) + i, int(y*scale) + j))] + int(random(-25,25));
                   }
-                } if (grassVal == 0){break;}
-              } if (grassVal == 0){
-              tree[x][y] = 0;
-              grass[x][y] = 0;
+                } if (grassVal == -9999){break;}
+              } if (grassVal == -9999){
+              tree[x][y] = -9999;
+              grass[x][y] = -9999;
               }
               else{
               // set cell value to average
               tree[x][y] = 255-round( grassVal/(scale*scale) );
               grass[x][y] = round( grassVal/(scale*scale) );
-              growth[x][y] = 75;
+              growth[x][y] = 1;
               }
             }
           }
@@ -328,24 +327,32 @@ class Firescape extends Lattice   // when a class "extends" another class
       };
 
 ///////////////////////////////////////////////////////////////      
-      void growGrass( )
+      void growScape( )
       {
           //for every cell in the lattice, check if it is below its maximum
           //capacity, if so, grow the grass incrementally by "growthRate" amount
           //if it is at capacity, leave it.
-        
+          int gWins= 0;
+          int tWins = 0;
           for( int x = 0; x < w; x++ ){
             for( int y = 0; y < h; y++){
-             
                     // if poop is less than beta then grass will grow there
-                    //if( grass[x][y] + tree[x][y] < capacity[x][y])// && poop[x][y] < beta )
-                    //{
-                        grass[x][y] += growth[x][y];
-                        tree[x][y] += growth[x][y]/10;
+                    if( grass[x][y] == -9999 || tree[x][y] == -9999 ) {}
+                    else if ( grass[x][y] - tree[x][y] > 100 && tree[x][y] > 0 && grass[x][y] <= 255) {
+                        gWins += 1;
+                          grass[x][y] += growth[x][y];
+                          tree[x][y] -= growth[x][y];
+                    }
+                    else if ( grass[x][y] >= 0 && tree[x][y] <= 255){
+                      tWins += 1;
+                          tree[x][y] += growth[x][y];
+                          grass[x][y] -= growth[x][y];
+                    }
+                    else {};
                     //}
                      //calculatePollutionRatio(x,y);
             }
-          }
+          } println("G", gWins, "T", tWins);
       };
 
  ///////////////////////////////////////////////////////////////      
@@ -523,7 +530,7 @@ void cycleDefs (int month)
   println("Cycling water def maps ...");
   for (int x = 0; x < w; x++){
     for (int y = 0; y < h; y ++){
-          growth[x][y] = growth[x][y]-round(map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, 0, 50));
+          growth[x][y] = round(map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, -1, 4));
     }
   }
   
@@ -551,16 +558,32 @@ float[][] getGrass ( )
               fill( swatch[ currentState ] );
               rect( drawX, drawY, dimn, dimn);
              }
-
-            else {
+              
+            //else {
               
             color Gr = color(154, 205, 50, grass[x][y]);
-            color Tr = color(34, 139, 34, tree[x][y]);
+            color Tr = color(0, 100, 0, tree[x][y]);
             color Hr = color(107,142,35,180);
-            color b = color (0, 0, 0, 0); 
-            color[] hatch;
+            color b = color (0, 0, 255, 50); 
+            color[] hatch; 
+            
+            
+            if (tree[x][y] >= 0 && grass[x][y] >= 0 ){
+              if (tree[x][y] > grass [x][y]) {
+                hatch = new color[]                                          
+                                                                            {Gr, Tr, Gr, Tr,
+                                                                             Tr, Gr, Tr, Gr,
+                                                                             Gr, Tr, Gr, Tr,
+                                                                             Tr, Gr, Tr, Gr}; }
+              else {
+                hatch = new color[] //{b,b,b,b,b,b,b,b,b,b,b,b,b,b,b,b};}} swatch for 
+                                                                            {Gr, Gr, Tr, Gr,
+                                                                             Gr, Tr, Gr, Tr,
+                                                                             Tr, Gr, Tr, Gr,
+                                                                             Gr, Tr, Gr, Gr}; }}
+            else {return;};
           
-          
+          /*
           if ( tree[x][y] > grass [x][y] && tree[x][y] > 0 ){ 
                if (tree[x][y] > 150 ) { hatch =               new color[] {Tr, Hr, Tr, Tr,
                                                                            Hr, Tr, Tr, Tr,
@@ -604,10 +627,10 @@ float[][] getGrass ( )
                                                                            Gr, Tr, Gr, Tr}; }; }
            
            else { return;}
-            
+            */
             for ( int i = 0; i < scale; i++ ) {
               for ( int j = 0; j < scale; j++ ) {
-                ag.getImage().set(drawX+i,drawY+j, hatch[int(i+scale*j)%16]);
+                ag.getImage().set(drawX+j,drawY+i, hatch[int(j+scale*i)%16]);
               }
             };/*
             for ( int i = 0; i < scale; i++ ) {
@@ -615,7 +638,7 @@ float[][] getGrass ( )
                 ag.getImage().set(drawX+i,drawY+j, color(tree[x][y],tree[x][y],tree[x][y]));
               }
             }*/
-            }  
+            //}  
       }
 
 

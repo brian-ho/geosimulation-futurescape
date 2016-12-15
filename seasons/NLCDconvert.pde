@@ -12,19 +12,19 @@ public class NLCDconvert
       {
             NLCD = new int[129];
             // GRASS + TREE = 255, values are GRASS — makes life easier;
-            NLCD[11] = 0; //Open Water
-            NLCD[13] = 0; //Developed-Upland Deciduous Forest
-            NLCD[14] = 0; //Developed-Upland Evergreen Forest
-            NLCD[15] = 0; //Developed-Upland Mixed Forest
-            NLCD[16] = 0; //Developed-Upland Herbaceous
-            NLCD[17] = 0; //Developed-Upland Shrubland
-            NLCD[22] = 0; //Developed - Low Intensity
-            NLCD[23] = 0; //Developed - Medium Intensity
-            NLCD[24] = 0; //Developed - High Intensity
-            NLCD[25] = 0; //Developed-Roads
-            NLCD[31] = 0; //Barren
-            NLCD[32] = 0; //Quarries-Strip Mines-Gravel Pits
-            NLCD[100] = 0; //Sparse Vegetation Canopy
+            NLCD[11] = -9999; //Open Water
+            NLCD[13] = -9999; //Developed-Upland Deciduous Forest
+            NLCD[14] = -9999; //Developed-Upland Evergreen Forest
+            NLCD[15] = -9999; //Developed-Upland Mixed Forest
+            NLCD[16] = -9999; //Developed-Upland Herbaceous
+            NLCD[17] = -9999; //Developed-Upland Shrubland
+            NLCD[22] = -9999; //Developed - Low Intensity
+            NLCD[23] = -9999; //Developed - Medium Intensity
+            NLCD[24] = -9999; //Developed - High Intensity
+            NLCD[25] = -9999; //Developed-Roads
+            NLCD[31] = -9999; //Barren
+            NLCD[32] = -9999; //Quarries-Strip Mines-Gravel Pits
+            NLCD[100] = -9999; //Sparse Vegetation Canopy
             NLCD[101] = 204; //Tree Cover >= 10 and < 20%
             NLCD[102] = 178; //Tree Cover >= 20 and < 30%
             NLCD[103] = 153; //Tree Cover >= 30 and < 40%
