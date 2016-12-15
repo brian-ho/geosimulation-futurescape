@@ -24,6 +24,7 @@ float northMound  = growthRate1;
 float southMound  = growthRate2;
 
 char displayMode;
+char action;
 
 
 void setup()

@@ -165,8 +165,8 @@ class Firescape extends Lattice   // when a class "extends" another class
              // update next state as defined in below function.
              int currentState = (int) lat1.get(x,y);
              int    nextState = updateBurnState( currentState, x, y );
-             
-             if( currentState == BURNING )
+             if ( keyPressed && key == 's' ){}
+             else if( currentState == BURNING )
              {   
                  // add to fires
                  fires.add(new PVector(x,y,0));
@@ -317,7 +317,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       };
  
   ///////////////////////////////////////////////////////////////      
-      void seedScapeCell( int[] converts, int x, int y)
+void seedScapeCell( int[] converts, int x, int y)
       {
  
               // keep track of cell net grass value
@@ -341,8 +341,8 @@ class Firescape extends Lattice   // when a class "extends" another class
               }
               else{
               // set cell value to average
-              tree[x][y] = 255-round( grassVal/(scale*scale) );
-              grass[x][y] = round( grassVal/(scale*scale) );
+              tree[x][y] = map(255-( grassVal/(scale*scale)),0,255,0,100 );
+              grass[x][y] = map( grassVal/(scale*scale),0,255,0,100 );
               growth[x][y] = 1;
               }
 
@@ -470,6 +470,7 @@ int updateBurnState( int currentState, int x, int y )
            // BURNING STATE ////////////////////////
            else if( currentState == BURNING )
            {   
+               if ( keyPressed && key == 's' ){ nextState = BURNT; return nextState; }
                if (grass[x][y] > 0){ grass[x][y] = 101; }
                if (tree[x][y] > 0){ tree[x][y] = 1; }
                float dur = lat3.get(x,y);
