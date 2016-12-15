@@ -530,7 +530,7 @@ void cycleDefs (int month)
   println("Cycling water def maps ...");
   for (int x = 0; x < w; x++){
     for (int y = 0; y < h; y ++){
-          growth[x][y] = round(map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, -1, 4));
+          growth[x][y] = 4-round(map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, -1, 4));
     }
   }
   
@@ -563,7 +563,7 @@ float[][] getGrass ( )
               
             color Gr = color(154, 205, 50, grass[x][y]);
             color Tr = color(0, 100, 0, tree[x][y]);
-            color Hr = color(107,142,35,180);
+            color Hr = color(107,142,35,tree[x][y]);
             color b = color (0, 0, 255, 50); 
             color[] hatch; 
             
