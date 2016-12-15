@@ -410,7 +410,7 @@ void seedScapeCell( int[] converts, int x, int y)
           //if it is at capacity, leave it.
           int g = 0;
           int t = 0;
-          int n = 0;
+          
           for( int x = 0; x < w; x++ ){
             for( int y = 0; y < h; y++){
                     // if poop is less than beta then grass will grow there
@@ -431,7 +431,9 @@ void seedScapeCell( int[] converts, int x, int y)
                     //}
                      //calculatePollutionRatio(x,y);
             }
-          } println("G", g, "T", t, "SUM", g+t);
+          }
+          gMass = g;
+          tMass = t;
       };
 
  ///////////////////////////////////////////////////////////////      

@@ -108,7 +108,7 @@ class Cow
         // from the total amount this agent is holding.
         // convert this amount to mass
         stomach -= ruminateRate;
-        mass += ruminateRate;
+        mass = constrain(mass + ruminateRate, 0, 500);
                 
         // if the amount needed to eat is more than the agent has left
         // the agent "dies"
@@ -382,7 +382,7 @@ class Cow
           float d = PVector.dist(loc, f);
           // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
           if ((d > 0) && (d < desiredseparation)) {
-            println("FLEE!");
+            //println("FLEE!");
             // Calculate vector pointing away from neighbor
             PVector diff = PVector.sub(loc, f);
             diff.normalize();
@@ -426,4 +426,6 @@ class Cow
             }
             return index;
     };
+    
+    float mass() { return mass; };
 }

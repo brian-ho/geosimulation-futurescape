@@ -26,6 +26,10 @@ float southMound  = growthRate2;
 char displayMode;
 char action;
 
+int gMass;
+int tMass;
+int cMass;
+
 
 void setup()
 {
@@ -35,6 +39,11 @@ void setup()
     
     scale = width/wScape;
     displayMode = 'N';
+    
+    gMass = 0;
+    tMass = 0;
+    cMass = 0;
+    
     scape = new Firescape( wScape, hScape );
     //scape.addGrassPoint( 7, 20, 75, 20 );  // add a food mound at x,y location [15,40] 
     //scape.addGrassPoint( round(random(0, wScape)), round(random(0, hScape)), round(random(1, 100)), 20 );  // add a food mound at x,y location [40,15]
@@ -67,13 +76,13 @@ void setup()
 void draw()
 {
   clear();
-  
-  //println("-----------------------");
+  if ( frameCount % 30 == 1 ){
   month = ((frameCount/30) % 12)+1;
-  //println(frameCount, "MONTH", month);
-  
-  if ( frameCount % 30 == 0 ){
-  scape.cycleDefs( month-1 );}
+  scape.cycleDefs( month-1 );
+  println("-----------------------");
+  println(frameCount, "MONTH", month);
+  println("G", gMass, "T", tMass, "C", cMass, "SUM", gMass+tMass+cMass);
+}
   
   if ( keyPressed && key == '1' ){ displayMode = 'N';}
   if ( keyPressed && key == '2' ){ displayMode = 'F';}  
