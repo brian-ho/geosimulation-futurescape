@@ -42,6 +42,8 @@ class Firescape extends Lattice   // when a class "extends" another class
       NLCDhatch nlcdHatches;        // a simple swatch of land cover colors
       NLCDconvert nlcdConverts;        // a simple swatch of land cover colors
       
+      PImage img;
+      
       Table strikes;
       
       int kernelSize = 1;           // simple Moore neighborhood
@@ -52,7 +54,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       int BURNT   = 3;  
       int GROWING = 4;
       
-      int burningTime = 80;
+      int burningTime = 10;
       int burntSeason   = 180;     // how many time steps a burnt cell stays burnt
       int growingSeason = 360; 
       
@@ -65,7 +67,7 @@ class Firescape extends Lattice   // when a class "extends" another class
       Firescape( int _w, int _h )
       {        
         super( _w, _h, 0);  // tell the underlying lattice how big it is
-        println ("INTIALIZED FIRESCAPE cell dimensions:", w, 'x', h);
+        println ("INTIALIZED FIRESCAPE", w, 'x', h, "cell dimension:", scale);
         capacity   = new float[w][h];  // initialize the capacity array
         growth     = new float[w][h];  // initialize the growth array
         grass      = new float[w][h];  // initialize grass matrix
@@ -102,6 +104,8 @@ class Firescape extends Lattice   // when a class "extends" another class
          dem.fitToScreen();
          dem.updateImage();
          
+         img = loadImage("Data/dem_hillshade.png");
+         
          seedScape( nlcdConverts.getConverts() );
          
          calculateFuelDensity();
@@ -120,7 +124,9 @@ class Firescape extends Lattice   // when a class "extends" another class
  ///////////////////////////////////////////////////////////////
      void runScape()
      {
-        //image(   ag.getImage(),0,0 );
+       image(   img,0,0 );
+       image(   ag.getImage(),0,0 );
+        //image(img,0,0);
         // reset holder of fires
         fires.clear();
         
@@ -246,18 +252,29 @@ class Firescape extends Lattice   // when a class "extends" another class
       void seedScape( int[] converts)
       {
           //intializes the state of every cell based on NLDC ASCII file.
-        
+          println( "Seeding Firescape with ASC Grid resampled to", w, 'x', h, "...");
           for( int x = 0; x < w; x++ ){
             for( int y = 0; y < h; y++){
+              // keep track of cell net grass value
               float grassVal = 0;
-              // every pixel in cell
-              for ( int i = 0; i < scale*scale; i++ )
-              {
-                grassVal += converts[int(ag.get(x, y))] + int(random(-25,25));
+              // for each cell, go over every pixel in cell
+              for ( int i = 0; i < scale; i++ ){
+                for ( int j = 0; j < scale; j++ ){
+                  int temp = converts[int(ag.get(int(x*scale) + i, int(y*scale) + j))];
+                  if (temp == 0){ grassVal = 0; break;}
+                  else{
+                  grassVal += converts[int(ag.get(int(x*scale) + i, int(y*scale) + j))] + int(random(-25,25));
+                  }
+                } if (grassVal == 0){break;}
+              } if (grassVal == 0){
+              tree[x][y] = 0;
+              grass[x][y] = 0;
               }
-              tree[x][y] = 255-round( grassVal/scale*scale );
-              grass[x][y] = round( grassVal/scale*scale );
-              println(tree[x][y]);
+              else{
+              // set cell value to average
+              tree[x][y] = 255-round( grassVal/(scale*scale) );
+              grass[x][y] = round( grassVal/(scale*scale) );
+              }
             }
           }
       };
@@ -359,33 +376,6 @@ class Firescape extends Lattice   // when a class "extends" another class
             // then calculate the proportion of grass to poop
             poop[x][y] *= recoverRate;
             lattice[x][y] = grass[x][y] / (1 + poop[x][y] );
-      }
-
-/////////////////////////////////////////////////////////////// 
-      void drawScape ( int currentState, int x, int y )
-      {   
-            int val = round( map( grass[x][y], 0, maxCapacity, 0, 255) );
-            
-            int drawX = floor( map( x, 0, w, 0, width ) );
-            int drawY = floor( map( y, 0, h, 0, height ) );
-       
-            int dimn = round( scale );
-            
-             //if( currentState > 0)
-             //{
-              noStroke();
-              fill( swatch[ currentState ] );
-              //rect( drawX, drawY, dimn, dimn);
-             //}
-
-            //else {
-            noStroke();
-            fill( 255-val, val, 255-val, 50 );
-            //}
-            rect( drawX, drawY, dimn, dimn);
-            
-            //strokeWeight(1);
-            //stroke(255);
       }
 
 ///////////////////////////////////////////////////////////////////////
@@ -506,4 +496,71 @@ ArrayList<PVector> fires()
      
       return fires;   
 }
+
+/////////////////////////////////////////////////////////////// 
+      void drawScape ( int currentState, int x, int y )
+      {   
+            int val = round( map( grass[x][y], 0, maxCapacity, 0, 100) );
+            
+            int drawX = floor( x*scale );
+            int drawY = floor( y*scale );
+       
+            int dimn = round( scale );
+            
+             /*if( currentState > 1)
+             {
+              noStroke();
+              fill( swatch[ currentState ] );
+              rect( drawX, drawY, dimn, dimn);
+             }*/
+
+            //else {
+            noStroke();
+            //println("cell values", grass[x][y], tree[x][y]);
+            color Gr = color(154, 205, 50, grass[x][y]);
+            color Tr = color(34, 139, 34, tree[x][y]);
+            color Hr = color(107,142,35,180);
+            color[] hatch;
+            
+            if ( tree[x][y] > 100 ){ hatch = new color[] {Gr, Tr, Gr, Tr, Tr, Gr, Tr, Gr, Tr, Gr, Gr, Tr, Tr, Gr, Tr, Gr};}
+            else if ( tree[x][y] > 50 ){ hatch = new color[] {Gr, Tr, Gr, Gr, Tr, Gr, Gr, Gr, Gr, Gr, Gr, Tr, Gr, Gr, Tr, Gr};}
+            else if ( grass[x][y] > 100 ){ hatch = new color[] {Tr, Gr, Tr, Gr, Gr, Tr, Gr, Tr, Gr, Tr, Tr, Gr, Gr, Tr, Gr, Tr};}
+            else if ( grass[x][y] > 0 ) { hatch = new color[] {Gr, Gr, Gr, Tr, Gr, Gr, Tr, Gr, Gr, Tr, Gr, Gr, Tr, Gr, Gr, Gr};}
+            else {return;}
+            
+            for ( int i = 0; i < scale; i++ ) {
+              for ( int j = 0; j < scale; j++ ) {
+                ag.getImage().set(drawX+i,drawY+j, hatch[int(i+scale*j)%16]);
+              }
+            };
+            
+            //rect( drawX, drawY, dimn, dimn);
+            
+            //strokeWeight(1);
+            //stroke(255);
+            //}
+      }
+
+
+color percentToRGB( float percent) {
+    if (percent == 100) {
+        percent = 99;
+    }
+    int r, g, b;
+
+    if (percent < 50) {
+        // green to yellow
+        r = floor(255 * (percent / 50));
+        g = 255;
+
+    } else {
+        // yellow to red
+        r = 255;
+        g = floor(255 * ((50 - percent % 50) / 50));
+    }
+    b = 0;
+
+    return color(r,g,b);
+}
+
 };

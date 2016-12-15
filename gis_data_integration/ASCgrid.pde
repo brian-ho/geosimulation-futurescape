@@ -309,14 +309,15 @@ public class ASCgrid
     
         for( int i = 0; i < w; i+=scale ){
           for( int j = 0; j < h; j+=scale){
-            for( int k = 0; k < scale*scale; k++ ){
+            int px = (int)this.get(i,j);
             
-                int px = (int)this.get(i,j);
-                img.set((int)(i)+floor(k % scale),(int)(j)+floor(k/scale), hatch[px][k%3]);   
+            for( int u = 0; u < scale; u++ ){
+              for( int v = 0; v < scale; v++ ){
+                img.set((int)(i)+u,(int)(j)+v, hatch[px][int((u+v*scale)%4)]);  
+              }
             }
           }
         }
-        
         imageLoaded = true;  
         return img;   
     };

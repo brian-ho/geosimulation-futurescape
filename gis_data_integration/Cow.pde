@@ -92,6 +92,7 @@ class Cow
           case 'G': 
             graze( scape );
             break;
+          case 'Q':
           case 'M': 
             moove( herd, scape );
             break;
@@ -148,6 +149,10 @@ class Cow
                 thought = "hmm...";
                 fill (255,0,0);
                 break;
+              case 'Q':
+                thought = "?";
+                fill (255,0,0);
+                break;
             }
             
             ellipse( loc.x, loc.y, 6, 6 );
@@ -182,7 +187,7 @@ class Cow
           dest.x = map(maxNeighbor.x, 0, w, 0, width) + floor(random(0,scale));
           dest.y = map(maxNeighbor.y, 0, h, 0, height) + floor(random(0,scale));
           
-          println ( "NEW DEST:", dest.x, dest.y);
+          //println ( "NEW DEST:", dest.x, dest.y);
           status = 'M';
         }
         // cows be patient
@@ -210,7 +215,7 @@ class Cow
             dest.x = wrap( loc.x + delta.x, width);
             dest.y = wrap( loc.y + delta.y, width);
             
-            status = 'M';
+            status = 'Q';
           }
         }
         //
@@ -260,7 +265,10 @@ class Cow
           loc.x = wrap( loc.x + velocity.x, width );
           loc.y = wrap( loc.y + velocity.y, height );
           
-          status = 'M';
+          if (status != 'Q')
+          {
+            status = 'M';
+          }
         }
         // if arrived
         else if ( velocity.mag() <= speed )
@@ -372,7 +380,7 @@ class Cow
           float d = PVector.dist(loc, f);
           // If the distance is greater than 0 and less than an arbitrary amount (0 when you are yourself)
           if ((d > 0) && (d < desiredseparation)) {
-            println("FLEE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            println("FLEE!");
             // Calculate vector pointing away from neighbor
             PVector diff = PVector.sub(loc, f);
             diff.normalize();
