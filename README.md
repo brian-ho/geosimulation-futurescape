@@ -1,4 +1,4 @@
-### futurescape
+## futurescape
 
 brian ho and oliver curtis
 
@@ -16,7 +16,7 @@ personal or professional project.
 
 
 
-### GUIDE + README:
+### guide and readme:
 
 futurescape is an interactive simulation of an imagined ecology for the high desert forests near Flagstaff, Arizona. in the futurescape, the current fire regime — defined by frequent severe fires across the high density, low homogeneity Ponderosa Pine forests - is dynamically changed by the addition of smart harvesting landings in the forest and holistic grazing ranches on the grassland. the combination of these strategies helps to put two natural systems into healthy competition.
 
