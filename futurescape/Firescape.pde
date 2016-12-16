@@ -53,7 +53,7 @@ class Firescape extends Lattice   // main class for landscape
       int BURNT   = 3;  
       int GROWING = 4;
       
-      int burningTime = 2;         // fire spread rapidly
+      int burningTime = 1;         // fire spreads rapidly
       int burntSeason   = 240;     // how many time steps a burnt cell stays burnt
       int growingSeason = 1;       // growing is implemented elsewhere
       
@@ -207,7 +207,7 @@ class Firescape extends Lattice   // main class for landscape
                       float neighborElevation = dem.get( (int)hood[i].x, (int)hood[i].y );
                       float slope = (neighborElevation-currentElevation) / (float)dem.cellsize;
                       
-                      if(   slope > 0 )
+                      if(   slope > 5 )
                       {
                         // asign the neighbor a state BURNING 
                         // lock it so the rest of the for loop doesn't accidentally
@@ -443,24 +443,37 @@ void seedScapeCell( int[] converts, int x, int y)
               
                     // handle non-veg cells
                     if( grass[x][y] == -9999 || tree[x][y] == -9999 ) {}
-                    
                     // TIPPING POINT: behavior hinges on comparative biomass of tree + grass on cell
-                    else if ( grass[x][y] - tree[x][y] >= 100 && tree[x][y] > 0 && grass[x][y] <= 255)
-                    {
-                          g += grass[x][y];
-                          t += tree[x][y];
-                          grass[x][y] += growth[x][y];
-                          tree[x][y] -= growth[x][y];
-                    }
-                    else if ( grass[x][y] >= 0 && tree[x][y] <= 255)
+                    else if ( grass[x][y] - tree[x][y] >= 100 && tree[x][y] > 30 && grass[x][y] <= 250)
                     {
                         g += grass[x][y];
                         t += tree[x][y];
-                          tree[x][y] += growth[x][y];
-                          grass[x][y] -= growth[x][y];
+                        grass[x][y] += growth[x][y];
+                        tree[x][y] -= growth[x][y];
                     }
+                    else if ( grass[x][y] >= 10 && tree[x][y] <= 250)
+                    {
+                        g += grass[x][y];
+                        t += tree[x][y];
+                        tree[x][y] += growth[x][y];
+                        grass[x][y] -= growth[x][y];
+                    }
+                    /*
+                    else if ( grass[x][y] < 20 && tree[x][y] <= 250)
+                    {
+                     grass[x][y] += growth[x][y];
+                     tree[x][y]  -= growth[x][y];
+                    }
+                    else if ( tree[x][y] < 20 && grass[x][y] <= 250)
+                    {
+                     grass[x][y] += growth[x][y];
+                     tree[x][y]  -= growth[x][y];
+                    }
+                    */
+                    else { placeRanch(x, y);};
             }
           }
+          if ( action == 'N' ) { action = 'X'; };
           gMass = g; // update global counters
           tMass = t;
       };
@@ -622,7 +635,7 @@ void calculateFuelDensity2()
            if( tree[x][y] == -9999 || grass[x][y] == -9999){ fuelLoad = -9999; }
            
            // fuel load favors tree
-           else {fuelLoad  = int(tree[x][y] + grass[x][y]/2);}
+           else {fuelLoad  = int(tree[x][y]*.75 + grass[x][y]*.5);}
            lat5.put( x,y, fuelLoad );
        }}
 };
@@ -671,7 +684,7 @@ void cycleDefs (int month)
     for (int y = 0; y < h; y ++)
     {
           // need to normalize re-world data for our simulation
-          growth[x][y] = 4-round(map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, -1, 3));
+          growth[x][y] = 2-round(map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, -1, 1))+(randomGaussian()-.5);
     }
   }
 }
@@ -698,26 +711,30 @@ float[][] getTree ( )
 // when landings are placed
 void placeLanding (int x, int y )
 {
-    // save to landings
-    landings.add(new PVector(x,y,0));
-          
           //translate location
-          int latX = floor(map(mouseX,0,width,0,w));
-          int latY = floor(map(mouseY,0,height,0,h));
+          int latX = floor(map(x,0,width,0,w));
+          int latY = floor(map(y,0,height,0,h));
+          int rad = 12;
+          
+          if (tree[latX][latY] == -9999){return;}
+          landings.add(new PVector(x,y,0));         // save to landings
           
           // area of effect around landing
-          for (int i = -8; i < 8; i++) {
-            for (int j = -8; j < 8; j++ ) {
-              if  (latX + j < 0 || latY + i < 0 || latX + j > 124 || latY + i > 124){}
+          for (int i = -rad; i < rad; i++) {
+            for (int j = -rad; j < rad; j++ ) {
+              if  (latX + j < 0 || latY + i < 0 || latX + j > wScape || latY + i > hScape){}
               else {
                     int tempX=latX+j;
                     int tempY=latY+i;
                     
+                    if(tree[tempX][tempY]==-9999){}
+                    else{
                     float distToLanding = dist(latX, latY, tempX, tempY);
-                    float removal      = map( distToLanding, 0, 8, 200, 10 );
+                    float removal      = map( distToLanding, 0, rad, 200, 10 );
                     
                 tree[tempX][tempY] = constrain(tree[tempX][tempY]-removal + random(-10,10),1, 255); // random fuzz at edges
                 grass[tempX][tempY] = constrain(grass[tempX][tempY]+removal + random(-10,10),1,255);
+                growth[tempX][tempY] = map( distToLanding, 0, rad, 0, 2 );}
               }
             }
           }
@@ -748,8 +765,8 @@ void placeLanding (int x, int y )
             color Gr = color(154, 205, 50, grass[x][y]);
             color Tr = color(0, 100, 0, tree[x][y]);
             color Hr = color(107,142,35,tree[x][y]);
-            color b = color (0, 0, 255, 150); 
-            color r = color (0, 255, 0, 150); 
+            color b = color (0, 0, 255, tree[x][y]); 
+            color r = color (0, 255, 0, grass[x][y]); 
             color[] hatch; 
             
             // two kinds of algorithmic hatches depending on dominant veg (or SIMPLE view)
@@ -771,14 +788,15 @@ void placeLanding (int x, int y )
                                                                              Tr, Hr, Tr, Gr,
                                                                              Hr, Tr, Gr, Tr}; }}
             }
-            else {return;};
+
+            else {return;}
             
-            // draw hatch as seiries of pixels within a cell
+            // draw hatch as series of pixels within a cell
             for ( int i = 0; i < scale; i++ ) {
               for ( int j = 0; j < scale; j++ ) {
                 ag.getImage().set(drawX+j,drawY+i, hatch[int(j+scale*i)%16]);
                 }
-              };
+              } drawRanchland(x,y);
             }
             
             // FUEL LOADING view
@@ -825,5 +843,47 @@ void placeLanding (int x, int y )
               }
             }
             }
+            };
+/////////////////////
+
+    void drawRanchland( int x, int y ){
+      
+    if (fences.size() >= 1){
+      for ( java.awt.Polygon f: fences){  
+          int drawX = floor(x*scale);
+          int drawY = floor(y*scale);
+          
+         if (f.contains (drawX, drawY)) {
+           noStroke(); 
+           fill(255,255,255,10);
+            //rect(drawX,drawY,scale,scale);
+              }
+            }
+        }
       }
-};
+      
+      
+/////////////////////
+    void placeRanch( int x, int y ){
+      
+    if (fences.size() >= 1 && action == 'N'){
+      println ("DRAWING FENCE TO MAP at", x, y);
+      java.awt.Polygon f = fences.get(fences.size()-1);  
+          int drawX = floor(x*scale);
+          int drawY = floor(y*scale);
+          
+         if (f.contains (drawX, drawY)) {
+            int removal = 200;
+            tree[x][y] = constrain(tree[x][y]-removal + random(-10,10),1, 50); // random fuzz at edges
+            grass[x][y] = constrain(grass[x][y]+removal + random(-10,10),75,255);}
+              }
+            }
+
+
+   ////
+boolean onFire( int x, int y ){
+  int scapeX = floor(x/scale);
+  int scapeY = floor(y/scale);
+  if ( lat1.get(scapeX, scapeY) == 2) { return true;} else {return false;}}
+  
+        }

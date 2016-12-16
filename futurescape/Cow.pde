@@ -52,10 +52,10 @@ class Cow
       
      ///////////////////////////////////////////////////////////////
      // alternate constructor with location
-      Cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision, int xLoc, int yLoc )
+       Cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision, Firescape scape, int xLoc, int yLoc )
       {
           w = _w;  //  width of Firescape
-          h = _h;  // height of Firescapescale
+          h = _h;  // height of Firescape
           grazingRate  = _grazingRate;        // metabolic rate
           ruminateRate = _ruminateRate;
           vision       = _vision;             // distance of vision (kernel size)
@@ -64,15 +64,14 @@ class Cow
           // set the neighborhood distance to "vision" this is how far it can see
           // in terms of locating food resources in its immediate neighborhood
           k = new Kernel();
-          k.setNeighborhoodDistance(round(vision / scale));
+          k.setNeighborhoodDistance(round(vision / (int)scale));
           
-          // x,y location assigned explicitly with input parameters above, xLoc, yLoc
           loc = new PVector( xLoc, yLoc );
           
           // find a destination
           dest = new PVector();
           status = 'R';
-      };
+      }
           
  ///////////////////////////////////////////////////////////////
  // function to run multiple object behaviors
@@ -101,7 +100,7 @@ class Cow
             moove( herd, scape );
             break;
           case 'R':
-            ruminate( scape, herd );
+            ruminate( scape );
             break;
           case 'P':
             poop();
@@ -112,11 +111,12 @@ class Cow
         // from the total amount this agent is holding.
         // convert this amount to mass
         stomach -= ruminateRate;
-        mass = constrain(mass + ruminateRate, 0, 500);
+        mass = constrain(mass + ruminateRate, 0, 500); 
                 
         // if the amount needed to eat is more than the agent has left
         // the agent "dies"
         if( stomach <= 0 ) alive = false; 
+        if( scape.onFire((int)loc.x,(int)loc.y)) alive = false; 
     };
         
  ///////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ class Cow
     };
     
    ///////////////////////////////////////////////////////////////
-    void ruminate( Firescape scape, ArrayList<Cow> herd )
+    void ruminate( Firescape scape) //, ArrayList<Cow> herd )
     {        
        // convert cow position to Firescape grid
        int xScape = floor( map( loc.x, 0, width, 0, w ) );
@@ -222,10 +222,19 @@ class Cow
             status = 'Q';
           }
         }
-        
         // restrictions on movement
         if ( abs(scape.getDEM().get((int)loc.x, (int)loc.y) - scape.getDEM().get((int)dest.x, (int)dest.y)) > 75 ){ status = 'R';}
         if ( scape.getTree()[xScape][yScape] > 125 || scape.getTree()[xScape][yScape] == -9999 ){ status = 'R';}
+        
+        /*
+        for ( java.awt.Polygon f : fences)
+        {
+          if ( f.contains(dest.x, dest.y) && f.contains(loc.x,loc.y) == false)
+          {
+           status = 'R'; 
+          }
+        }
+         */
         //
     };
     
@@ -258,7 +267,6 @@ class Cow
         PVector velocity = PVector.sub(dest, loc);
         float mag = velocity.mag();
         
-        
         // if still distant
         if ( mag > speed )
         {
@@ -266,13 +274,27 @@ class Cow
                   // avoid collisions
           velocity.add(separate(herd).setMag(scale/2));
           velocity.add( fear ( scape ).setMag(speed*2));
-            
-          loc.x = wrap( loc.x + velocity.x, width );
-          loc.y = wrap( loc.y + velocity.y, height );
+          
+          PVector next = new PVector(0, 0);
+          next.x = wrap( loc.x + velocity.x, width );
+          next.y = wrap( loc.y + velocity.y, height );
+          
+          for ( java.awt.Polygon f : fences)
+          {
+            if ( f.contains(loc.x, loc.y) && f.contains(next.x,next.y) == false)
+            {
+             println ("NO GO");
+             dest.x = wrap( loc.x - velocity.x*2, width );
+             dest.y = wrap( loc.y - velocity.y*2, height );
+             status = 'M';
+             return;
+            }
+          }
           
           if (status != 'Q')
           {
             status = 'M';
+            loc.x = next.x; loc.y = next.y;
           }
         }
         // if arrived

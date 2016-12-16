@@ -12,16 +12,37 @@
 //  when using this library in any 
 //  personal or professional project.
 
-// new Firescape class - governs landscape
-Firescape scape;
+
+// GUIDE + README:
+
+// keypresses:
+// 1  normal view
+// 2  fuel loading view
+// 3  tree mass view
+// 4  grass mass view
+// 5  water def / growth rates view
+// 6  tree vs. grass view
+// 7  hillshade2
+
+// l  lighting mode — able to start fires with mouse click
+// h  harvest landing mode - place forest landings
+// f  fence mode - start drawing fence for rangeland with clicks, right-click closes fence (BUGGY)
+// s  put out fires
+// c  add a cow
+
+
+Firescape scape;         // new-ish Firescape class - governs landscape
 
 Herd herd;               // collection of cows
 int popSize = 20;        // and the herd size we use to initialize them
 
-// N.B. swatches are set up for a 4x4 grid
+ArrayList<java.awt.Polygon> fences;
+
+
+// N.B. swatches are set up for a 4x4 grid — this helps reduce computational complexity for CA
 // screen + cell dimension info
-int wScape = 125;
-int hScape = 125;
+int wScape = 250;
+int hScape = 250;
 float scale;
 
 int month;                             // keeps track of time
@@ -45,11 +66,12 @@ int gMass;
 int tMass;
 int cMass;
 
+
 //////////////////////////////////////////////
 void setup()
 {
    
-    size(500,500);
+    size(1000,1000);
     frameRate(10);  
     
     scale = width/wScape;  // get the scale
@@ -61,6 +83,7 @@ void setup()
     
     scape = new Firescape( wScape, hScape );
     herd = new Herd();
+    fences = new ArrayList<java.awt.Polygon>();
     
     // make cows
     // fill the ArrayList with popSize number of agents
@@ -101,7 +124,56 @@ void draw()
   
   if ( keyPressed && key == 'l' ){ action = 'L'; println("Lightning mode");}
   if ( keyPressed && key == 'h' ){ action = 'H'; println("Harvest landing mode");}
-    
+  if ( keyPressed && key == 'f' ){ action = 'F'; println("Fence mode");}
+  if ( keyPressed && key == 'c' ){ action = 'C'; println("Cow mode");}
+  
+  // INTERACTIONS FOR FENCES
+  if ( mousePressed && action == 'F')
+   { 
+    int scapeX = floor(mouseX/scale);
+    int scapeY = floor(mouseY/scale); 
+    if ( scape.getTree()[scapeX][scapeY] == -9999 || inFence(mouseX, mouseY)){}
+    else
+    {
+    println("ADDING FENCE");
+    java.awt.Polygon f = new java.awt.Polygon();
+    fences.add(f);
+    f.addPoint(mouseX, mouseY);
+    action = 'G';
+    }
+   }
+   if (mousePressed && action == 'G' && fences.size() >= 1)
+   {  
+      int scapeX = floor(mouseX/scale);
+      int scapeY = floor(mouseY/scale); 
+      if ( scape.getTree()[scapeX][scapeY] == -9999 /*|| inFence(mouseX, mouseY) */){}
+      else{
+      fences.get(fences.size()-1).addPoint(mouseX, mouseY); 
+      }
+   }
+   if( mousePressed && mouseButton == RIGHT & fences.size() >= 1 && action == 'G')
+   {  
+      int scapeX = floor(mouseX/scale);
+      int scapeY = floor(mouseY/scale); 
+      if ( scape.getTree()[scapeX][scapeY] == -9999 /*|| inFence(mouseX, mouseY)*/ ){}
+      else {
+       println("CLOSING FENCE");
+       fences.get(fences.size()-1).addPoint(mouseX, mouseY);
+       action = 'N';
+      }
+   }
+   
+  if (mousePressed && action == 'C' )
+   {  
+        int   vision = round( random( 20, 30 ) );    // vision is randomly distributed between 1 and 6
+        float graze  = random( 100, 200 );           // metabolic rate is randomly distributed between 1 and 4
+        float ruminate  = random( 0.01, 0.05 );      // metabolic rate is randomly distributed between 1 and 4
+        
+        Cow c = new Cow( wScape, hScape, graze, ruminate, vision, scape, mouseX, mouseY );
+        herd.addCow( c );
+   }
+
+  
   background(0);
   
   // run and draw the landscape on the screen
@@ -110,4 +182,30 @@ void draw()
   
   // run and draw cows
   herd.run();
+  
+  // draw current fence
+  if (fences.size() >= 1){
+    java.awt.Polygon f = fences.get(fences.size()-1); {
+      if (action == 'G'){
+        fill(0,0,0,50);
+        stroke(0,0,0,150);
+      beginShape();
+      for (int i = 0; i < f.npoints; i++) {
+       if ( i < f.npoints) {vertex(f.xpoints[i], f.ypoints[i]);}
+      }
+      vertex(mouseX, mouseY); endShape(CLOSE);
+      }
+    }
+  }
 }
+////////////////
+boolean inFence(int x, int y) {
+  for ( java.awt.Polygon f : fences) {
+    if (f.contains(x,y)){
+      return true;
+      };
+    }
+    return false;
+  }
+  
+  
