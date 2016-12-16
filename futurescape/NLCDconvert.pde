@@ -1,8 +1,8 @@
 public class NLCDconvert
 {
-      // a very simple class that holds the standard color
+      // a very simple class that holds the standard conversion ints
       // values for the National Land Cover Dataset (NLCD)
-      // it is nothing more than an array of color variables
+      // it is nothing more than an array of ints
       // accessed by the Land Cover codes.
       
       
@@ -53,7 +53,7 @@ public class NLCDconvert
       int getConvert( int NLCDcode )
       {  
             int defaultConvert = 0; // enter an invalid code number and
-                                               // get K back.
+                                               // get 0 back.
             
             return (NLCDcode >= 11 && NLCDcode <= 128)? NLCD[ NLCDcode ] : defaultConvert;
       }

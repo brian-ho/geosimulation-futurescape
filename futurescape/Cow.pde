@@ -10,18 +10,18 @@ class Cow
    PVector dest;               // stores cow's current destination
    float grazingRate;          // rate of consumption
    float ruminateRate;         // rate of digestion or metabolic rate
-   float stomach = 5;       // starting amount of food
+   float stomach = 5;          // starting amount of food
    float speed = 0.5;
    float mass = 1;             // when it was but a wee calf ...scale
    int vision;                 // vision range or kernel size
    int w, h;                   // Firescape width and height
-   char status;
+   char status;                // flag for move next turn
    boolean alive = true;       // zombie cows?
    Kernel k;                   // kernel for the cow
  
    ///////////////////////////////////////////////////////////////
    // constructor
-       Cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision )
+       Cow( int _w, int _h, float _grazingRate, float _ruminateRate, int _vision, Firescape scape )
       {
           w = _w;  //  width of Firescape
           h = _h;  // height of Firescape
@@ -35,10 +35,14 @@ class Cow
           k = new Kernel();
           k.setNeighborhoodDistance(round(vision / (int)scale));
           
+          int randomXLoc;
+          int randomYLoc;
+          do {
+          randomXLoc = (int) random( 0, width );
+          randomYLoc = (int) random( 0, height );
+          } while ( scape.getTree()[floor(randomXLoc/scale)][floor(randomYLoc/scale)] == -9999 || scape.getGrass()[floor(randomXLoc/scale)][floor(randomYLoc/scale)] < 125   );
           // assign it a random x,y location on the Firescape
-          int randomXLoc = (int) random( 0, width );
-          int randomYLoc = (int) random( 0, height );
-        
+          
           loc = new PVector( randomXLoc, randomYLoc );
           
           // find a destination
@@ -218,12 +222,11 @@ class Cow
             status = 'Q';
           }
         }
-        if ( abs(scape.getDEM().get((int)loc.x, (int)loc.y) - scape.getDEM().get((int)dest.x, (int)dest.y)) > 50 ){ status = 'R';}
-        if ( scape.getTree()[xScape][yScape] > 100 ){ status = 'R';}
-        //
-
         
-
+        // restrictions on movement
+        if ( abs(scape.getDEM().get((int)loc.x, (int)loc.y) - scape.getDEM().get((int)dest.x, (int)dest.y)) > 75 ){ status = 'R';}
+        if ( scape.getTree()[xScape][yScape] > 125 || scape.getTree()[xScape][yScape] == -9999 ){ status = 'R';}
+        //
     };
     
  ///////////////////////////////////////////////////////////////

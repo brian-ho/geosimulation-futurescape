@@ -1,8 +1,8 @@
 public class NLCDhatch
 {
-      // a very simple class that holds the standard color
+      // a very simple class that holds hatch
       // values for the National Land Cover Dataset (NLCD)
-      // it is nothing more than an array of color variables
+      // it is nothing more than an array of color arrays
       // accessed by the Land Cover codes.
       
       

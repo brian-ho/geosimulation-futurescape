@@ -1,3 +1,7 @@
+// added 1 functions
+// resampleImageHatch( color[][] hatch )
+// 
+
 public class ASCgrid
 {
     private int ncols;
