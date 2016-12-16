@@ -29,7 +29,8 @@ a project for
 // two natural systems into healthy competition.
 
 // futurescape utilizes GIS and other real-world data sources for the
-// topography, soil conditions and lighting frequency.
+// topography, soil conditions and lighting frequency; it simulates with
+// a combined celluar automata and agent-based model.
 
 // keypresses:
 // 1  normal view
