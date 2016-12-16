@@ -6,21 +6,14 @@ brian ho and oliver curtis
 
 part of, and adapting code from
 
-GSD 6349 Mapping II : Geosimulation
-
-Havard University Graduate School of Design
-
-Professor Robert Gerard Pietrusko
-
-<rpietrusko@gsd.harvard.edu>
-
-(c) Fall 2016
-
-Please cite author and course
-
-when using this library in any
-
-personal or professional project.
+| GSD 6349 Mapping II : Geosimulation
+| Havard University Graduate School of Design
+| Professor Robert Gerard Pietrusko
+| <rpietrusko@gsd.harvard.edu>
+| (c) Fall 2016
+| Please cite author and course
+| when using this library in any
+| personal or professional project.
 
 
 
