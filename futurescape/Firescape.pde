@@ -53,7 +53,7 @@ class Firescape extends Lattice   // main class for landscape
       int BURNT   = 3;  
       int GROWING = 4;
       
-      int burningTime = 1;         // fire spreads rapidly
+      int burningTime = 3;         // fire spreads rapidly
       int burntSeason   = 240;     // how many time steps a burnt cell stays burnt
       int growingSeason = 1;       // growing is implemented elsewhere
       
@@ -137,7 +137,7 @@ class Firescape extends Lattice   // main class for landscape
          swatch[GROWING] = color(0,255,0);
          swatch[FUEL]    = color(204, 153, 0);
          swatch[BURNING] = color(255,0,0);
-         swatch[BURNT]   = color(100,100,100);
+         swatch[BURNT]   = color(100,100,100, 100);
 
          // read in lightning CSV
          strikes = loadTable("Data/lightning.csv");
@@ -150,6 +150,7 @@ class Firescape extends Lattice   // main class for landscape
        // using PImage type for quick landscape rendering with set()
        // img is for hillshade underlay, ag is landscape
        image(   img,0,0 ); 
+       //background(255);
        image(   ag.getImage(),0,0 );
        
        // draw the landscape with hatches, loosely implemented
@@ -177,7 +178,7 @@ class Firescape extends Lattice   // main class for landscape
              else if( currentState == BURNING )
              {   
                  // add position to collection of fire
-                 fires.add(new PVector(x,y,0));
+                 fires.add  (new PVector(x,y,0));
                  
                  // first increment the log book to record that this cell is burning. 
                  lat4.increment(x,y);
@@ -194,7 +195,7 @@ class Firescape extends Lattice   // main class for landscape
                    float fuelLoad = hoodFuel[i].z;
                    
                    if ( fuelLoad == -9999) {} // error handling for non-vegetation cells
-                   else if( fuelLoad > 100 && lat4.get(x,y) > 2) // fire can only spread at a certain fuel threshold
+                   else if( fuelLoad > 90 && lat4.get(x,y) > 1) // fire can only spread at a certain fuel threshold
                    {  
                       // fuel load for burn probability
                       float burnProb = map(fuelLoad, 0, 500, 0, 1);
@@ -203,7 +204,7 @@ class Firescape extends Lattice   // main class for landscape
                       // slope from our burning cell (slope > 0) , it definitely burns
                       // otherwise, it only burns with probability, from simply proximity
                       
-                      if (random(0,1) < 0.75 ){
+                      if (random(0,1) < 0.95 ){
                       float neighborElevation = dem.get( (int)hood[i].x, (int)hood[i].y );
                       float slope = (neighborElevation-currentElevation) / (float)dem.cellsize;
                       
@@ -563,7 +564,7 @@ int updateBurnState( int currentState, int x, int y )
                if( dur > burningTime )
                {
                nextState = BURNT;  // next state is burnt
-               lat3.put( x,y, 0 ); // reset growth counter
+               lat3.put( x,y, (int)random(0, 120)); // reset growth counter
                }
                else
                {
@@ -609,7 +610,9 @@ int updateBurnState( int currentState, int x, int y )
                    lat3.put(x,y,round(random(0,5)));
                    
                    // growing means re-seeding the cell
-                   seedScapeCell( nlcdConverts.getConverts(), x, y);
+                   //seedScapeCell( nlcdConverts.getConverts(), x, y);
+                   grass[x][y] = randomGaussian()*30+125;
+                   tree[x][y] =  randomGaussian()*10+25;
                }
                else
                {
@@ -684,7 +687,7 @@ void cycleDefs (int month)
     for (int y = 0; y < h; y ++)
     {
           // need to normalize re-world data for our simulation
-          growth[x][y] = 2-round(map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, -1, 1))+(randomGaussian()-.5);
+          growth[x][y] = 2-map(defs[month].get(int(x*scale), int(y*scale)), -.1, 0.26, -1, 1)+(-.5 + (randomGaussian()/2));
     }
   }
 }
@@ -849,16 +852,34 @@ void placeLanding (int x, int y )
     void drawRanchland( int x, int y ){
       
     if (fences.size() >= 1){
-      for ( java.awt.Polygon f: fences){  
+      for ( Fence f: fences){  
           int drawX = floor(x*scale);
           int drawY = floor(y*scale);
           
          if (f.contains (drawX, drawY)) {
-           noStroke(); 
-           fill(255,255,255,10);
-            //rect(drawX,drawY,scale,scale);
+           //noStroke(); 
+           //fill(255,255,255,100);
+           //rect(drawX,drawY,scale,scale);
+           
+           color W = color(255,255,255,150);
+           color T = color(0, 0, 0, 0);
+           
+           color[] hatch =  {T, W, T, T,
+                             W, T, T, T,
+                             T, T, T, W,
+                             T, T, W, T};
+           int counter = 0;          
+           
+           for ( int i = 0; i < scale; i++ ) {
+              for ( int j = 0; j < scale; j++ ) {
+                if ( hatch[counter] == W ){
+                  ag.getImage().set(drawX+j,drawY+i, W);
+                 }
+                 counter += 1;
+                }
               }
             }
+          }
         }
       }
       
@@ -868,7 +889,7 @@ void placeLanding (int x, int y )
       
     if (fences.size() >= 1 && action == 'N'){
       println ("DRAWING FENCE TO MAP at", x, y);
-      java.awt.Polygon f = fences.get(fences.size()-1);  
+      Fence f = fences.get(fences.size()-1);  
           int drawX = floor(x*scale);
           int drawY = floor(y*scale);
           

@@ -20,21 +20,22 @@ public class NLCDhatch
             color Gr = color(154, 205, 50,180);
             color Tr = color(34, 139, 34,180);
             color Hr = color(107,142,35,180);
+            color R = color(255,0,0);
                        
             
             NLCD[11] = new color[] {B, B, B, B}; //Open Water
-            NLCD[13] = new color[] {B,G,B,D}; //Developed-Upland Deciduous Forest
-            NLCD[14] = new color[] {B,D,B,G}; //Developed-Upland Evergreen Forest
-            NLCD[15] = new color[] {B,D,B,D}; //Developed-Upland Mixed Forest
-            NLCD[16] = new color[] {B,D,B,G}; //Developed-Upland Herbaceous
-            NLCD[17] = new color[] {B,G,B,D}; //Developed-Upland Shrubland
-            NLCD[22] = new color[] {B,D,B,D}; //Developed - Low Intensity
-            NLCD[23] = new color[] {B,D,B,D}; //Developed - Medium Intensity
-            NLCD[24] = new color[] {B,D,B,D}; //Developed - High Intensity
+            NLCD[13] = new color[] {Tr,G,Tr,G}; //Developed-Upland Deciduous Forest
+            NLCD[14] = new color[] {Hr,G,Tr,G}; //Developed-Upland Evergreen Forest
+            NLCD[15] = new color[] {Hr,G,Tr,G}; //Developed-Upland Mixed Forest
+            NLCD[16] = new color[] {Hr,D,Hr,G}; //Developed-Upland Herbaceous
+            NLCD[17] = new color[] {Hr,G,Hr,D}; //Developed-Upland Shrubland
+            NLCD[22] = new color[] {W,G,G,G}; //Developed - Low Intensity
+            NLCD[23] = new color[] {G,D,D,D}; //Developed - Medium Intensity
+            NLCD[24] = new color[] {D,B,B,B}; //Developed - High Intensity
             NLCD[25] = new color[] {B,B,B,B}; //Developed-Roads
-            NLCD[31] = new color[] {W,W,W,W}; //Barren
-            NLCD[32] = new color[] {W,B,W,W}; //Quarries-Strip Mines-Gravel Pits
-            NLCD[100] = new color[] {W,G,W,B}; //Sparse Vegetation Canopy
+            NLCD[31] = new color[] {G,W,W,W}; //Barren
+            NLCD[32] = new color[] {B,W,W,W}; //Quarries-Strip Mines-Gravel Pits
+            NLCD[100] = new color[] {G,W,W,W}; //Sparse Vegetation Canopy
             NLCD[101] = new color[] {Tr,T,T,T}; //Tree Cover >= 10 and < 20%
             NLCD[102] = new color[] {Tr,T,T,T}; //Tree Cover >= 20 and < 30%
             NLCD[103] = new color[] {Tr,T,T,T}; //Tree Cover >= 30 and < 40%

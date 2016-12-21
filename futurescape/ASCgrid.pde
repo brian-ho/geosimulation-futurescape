@@ -313,18 +313,23 @@ public class ASCgrid
     
         for( int i = 0; i < w; i+=scale ){
           for( int j = 0; j < h; j+=scale){
-            int px = (int)this.get(i,j);
-            if ( px > 100 ) {}
-            else {
+            //int px = (int)this.get(i,j);
+            //if ( px > 100 ) {}
+            //else {
             
             for( int u = 0; u < scale; u++ ){
               for( int v = 0; v < scale; v++ ){
-                img.set((int)(i)+u,(int)(j)+v, hatch[px][int((u+v*scale)%4)]);  
+                int px = (int)this.get(i+u,j+v);
+                if ( px > 100 ) {}
+                else if ( px == 25 ) {
+                img.set((int)(i)+u,(int)(j)+v, hatch[px][0]);//int((u+v*scale)%4)]);  
                 }
+                else {img.set((int)(i)+u,(int)(j)+v, hatch[px][int((u+v*scale)%4)]); }
+              }
               }
             }
           }
-        }
+        
         imageLoaded = true;  
         return img;   
     };

@@ -1,9 +1,10 @@
  import java.util.Collections;
 // main sketch
 
-// ### futurescape
+// futurescape
 
 // brian ho and oliver curtis
+// online at https://github.com/brian-ho/geosimulation-futurescape
 
 // a project for
 
@@ -47,14 +48,12 @@
 // s  put out fires
 // c  add a cow
 
-
-
 Firescape scape;         // new-ish Firescape class - governs landscape
 
 Herd herd;               // collection of cows
 int popSize = 20;        // and the herd size we use to initialize them
 
-ArrayList<java.awt.Polygon> fences;
+ArrayList< Fence > fences;
 
 
 // N.B. swatches are set up for a 4x4 grid — this helps reduce computational complexity for CA
@@ -64,16 +63,6 @@ int hScape = 250;
 float scale;
 
 int month;                             // keeps track of time
-boolean seasons    = false;            // does the food grow in seasons
-
-//float growthRate1  = 90;             // season 1 growth rate
-//float growthRate2  = 90;             // season 2 growth rate
-//float polluteRate  = 0.1;            // pollution rate
-//float foodCollapse = 2;              // pollution threshold that collapses food
-//float recoverRate  = 0.998;          // rate that pollution decays
-
-//float northMound  = growthRate1;
-//float southMound  = growthRate2;
 
 // char variables serve as flags for status
 char displayMode;
@@ -101,13 +90,13 @@ void setup()
     
     scape = new Firescape( wScape, hScape );
     herd = new Herd();
-    fences = new ArrayList<java.awt.Polygon>();
+    fences = new ArrayList< Fence >();
     
     // make cows
     // fill the ArrayList with popSize number of agents
     for( int n = 0; n < popSize; n++ )
     { 
-        int   vision = round( random( 20, 30 ) );    // vision is randomly distributed between 1 and 6
+        int   vision = round( random( 10, 20 ) );    // vision is randomly distributed between 1 and 6
         float graze  = random( 100, 200 );           // metabolic rate is randomly distributed between 1 and 4
         float ruminate  = random( 0.01, 0.05 );      // metabolic rate is randomly distributed between 1 and 4
         
@@ -154,9 +143,9 @@ void draw()
     else
     {
     println("ADDING FENCE");
-    java.awt.Polygon f = new java.awt.Polygon();
+    Fence f = new Fence();
     fences.add(f);
-    f.addPoint(mouseX, mouseY);
+    f.addPost(mouseX, mouseY);
     action = 'G';
     }
    }
@@ -166,7 +155,7 @@ void draw()
       int scapeY = floor(mouseY/scale); 
       if ( scape.getTree()[scapeX][scapeY] == -9999 /*|| inFence(mouseX, mouseY) */){}
       else{
-      fences.get(fences.size()-1).addPoint(mouseX, mouseY); 
+      fences.get(fences.size()-1).addPost(mouseX, mouseY); 
       }
    }
    if( mousePressed && mouseButton == RIGHT & fences.size() >= 1 && action == 'G')
@@ -176,7 +165,7 @@ void draw()
       if ( scape.getTree()[scapeX][scapeY] == -9999 /*|| inFence(mouseX, mouseY)*/ ){}
       else {
        println("CLOSING FENCE");
-       fences.get(fences.size()-1).addPoint(mouseX, mouseY);
+       fences.get(fences.size()-1).addPost(mouseX, mouseY);
        action = 'N';
       }
    }
@@ -193,7 +182,7 @@ void draw()
 
   
   background(0);
-  
+ 
   // run and draw the landscape on the screen
   scape.runScape();
   scape.growScape();
@@ -203,27 +192,30 @@ void draw()
   
   // draw current fence
   if (fences.size() >= 1){
-    java.awt.Polygon f = fences.get(fences.size()-1); {
+    Fence f = fences.get(fences.size()-1); {
       if (action == 'G'){
-        fill(0,0,0,50);
+        fill(0,0,0,0);
         stroke(0,0,0,150);
       beginShape();
-      for (int i = 0; i < f.npoints; i++) {
-       if ( i < f.npoints) {vertex(f.xpoints[i], f.ypoints[i]);}
+      for (int i = 0; i < f.numPosts(); i++) {
+       if ( i < f.numPosts()) {vertex(f.getPost(i));}    //f.xpoints[i], f.ypoints[i]);}
       }
       vertex(mouseX, mouseY); endShape(CLOSE);
       }
     }
   }
+  //saveFrame("Frames/futurescape-####.png");
 }
+
 ////////////////
-boolean inFence(int x, int y) {
-  for ( java.awt.Polygon f : fences) {
+boolean inFence(int x, int y)
+{
+  for ( Fence f : fences) {
     if (f.contains(x,y)){
       return true;
       };
     }
     return false;
-  }
+}
   
   

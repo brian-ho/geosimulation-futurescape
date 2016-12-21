@@ -127,14 +127,14 @@ class Cow
         if( alive ) 
         {
             // mark the destination with a red circle
-            noStroke();
-            fill( 255, 0, 0 );
-            ellipse( dest.x, dest.y, 4, 4 );
+            //noStroke();
+            //fill( 255, 0, 0 );
+            //ellipse( dest.x, dest.y, 4, 4 );
             
             // draw a line from cow to destination
-            strokeWeight( 1 );
-            stroke( 255, 0 , 0 );
-            line( loc.x, loc.y, dest.x, dest.y );
+            //strokeWeight( 1 );
+            //stroke( 255, 0 , 0 );
+            //line( loc.x, loc.y, dest.x, dest.y );
             
             // draw cow, with fill depending on status
             stroke( 255, 255, 255 );
@@ -159,11 +159,11 @@ class Cow
                 break;
             }
             
-            ellipse( loc.x, loc.y, 6, 6 );
+            ellipse( loc.x, loc.y, 4, 4 );
             fill( 255, 0, 0 );
             
             // create cow text
-            text( thought, loc.x + 10, loc.y);
+            //text( thought, loc.x + 10, loc.y);
             //text("F: " + nf(stomach, 1, 2) + " M:" + nf(mass, 1, 2),loc.x + 10, loc.y + 15);
             //text( "V:" + vision + " G:" + grazingRate + " R:" + nf(ruminateRate, 1, 2), loc.x + 10, loc.y + 30);
             //text( status + " " + dest.x + ", " + dest.y, loc.x + 10, loc.y + 30);
@@ -227,7 +227,7 @@ class Cow
         if ( scape.getTree()[xScape][yScape] > 125 || scape.getTree()[xScape][yScape] == -9999 ){ status = 'R';}
         
         /*
-        for ( java.awt.Polygon f : fences)
+        for ( Fence f : fences)
         {
           if ( f.contains(dest.x, dest.y) && f.contains(loc.x,loc.y) == false)
           {
@@ -279,7 +279,7 @@ class Cow
           next.x = wrap( loc.x + velocity.x, width );
           next.y = wrap( loc.y + velocity.y, height );
           
-          for ( java.awt.Polygon f : fences)
+          for ( Fence f : fences)
           {
             if ( f.contains(loc.x, loc.y) && f.contains(next.x,next.y) == false)
             {
