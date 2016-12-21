@@ -1,11 +1,11 @@
  import java.util.Collections;
 // main sketch
 
-### futurescape
+// ### futurescape
 
-brian ho and oliver curtis
+// brian ho and oliver curtis
 
-a project for
+// a project for
 
 //  GSD 6349 Mapping II : Geosimulation
 //  Havard University Graduate School of Design
