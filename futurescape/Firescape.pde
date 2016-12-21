@@ -304,7 +304,7 @@ class Firescape extends Lattice   // main class for landscape
              // bit of a hack — force a radial area of effect around cow to supress trees 
              for (int i = -2; i < 3; i++) {
               for (int j = -2; j < 3; j++ ) {
-                if  (x + j < 0 || y + i < 0 || x + j > 124 || y + i > 124){}
+                if  (x + j < 0 || y + i < 0 || x + j >= w || y + i >= h){}
                 else {
                       int tempX=x+j;
                       int tempY=y+i;
@@ -725,7 +725,7 @@ void placeLanding (int x, int y )
           // area of effect around landing
           for (int i = -rad; i < rad; i++) {
             for (int j = -rad; j < rad; j++ ) {
-              if  (latX + j < 0 || latY + i < 0 || latX + j > wScape || latY + i > hScape){}
+              if  (latX + j < 0 || latY + i < 0 || latX + j >= w || latY + i >= h){}
               else {
                     int tempX=latX+j;
                     int tempY=latY+i;
